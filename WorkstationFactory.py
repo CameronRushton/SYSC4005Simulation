@@ -15,6 +15,6 @@ def create_workstation_three():
 
 
 def create_all_workstations():
-    return [create_workstation_one(),
+    return [create_workstation_three(),
             create_workstation_two(),
-            create_workstation_three()]
+            create_workstation_one()]

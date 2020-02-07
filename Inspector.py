@@ -1,5 +1,6 @@
 import random
 import threading
+import time
 from threading import Thread
 from Type import Type
 import atexit
@@ -38,16 +39,21 @@ class Inspector(Thread):
         while True:
             if self.is_working:
                 self.component = self._grab_component()
+                # This block needs to match the desired service time - code after is considered negligible
+                time.sleep(self.monitor.model_variables["component_service_times"][self.component.type])
             chosen_workstation, chosen_buffer = self._select_buffer(self.component.type)
-            if chosen_workstation:
-                if not self.is_working:
-                    self._toggle_is_working()
-                self._inspect_time()
+
+            if chosen_workstation:  # If I found a buffer not full for my component
+                if not self.is_working:  # If I'm currently blocked
+                    self._toggle_is_working()  # Set self to unblocked/working
+                    self.monitor.inspector_end_blocked(self.component.type)  # Notify monitor
+                    self._inspect_time #wait out the work time
                 chosen_buffer.add(self.component)
-                self.logger.info("Inspector %s added to buffer %s in workstation %s", self.inspector_type.value,
+                self.logger.info("Inspector of types %s added to buffer %s in workstation %s", self.types,
                                  chosen_buffer.type, chosen_workstation.type)
-            elif self.is_working:
-                self._toggle_is_working()
+            elif self.is_working:  # All buffers are full and if I'm not blocked
+                self._toggle_is_working()  # Set self to blocked
+                self.monitor.inspector_start_blocked(self.component.type)  # Notify monitor
 
     def _select_buffer(self, component_type):
         best_buffer = None

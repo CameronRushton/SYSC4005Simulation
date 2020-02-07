@@ -3,6 +3,7 @@ import logging
 import queue
 import time
 import threading
+import time
 from threading import Thread
 from Monitor import Monitor
 from Product import Product
@@ -19,6 +20,7 @@ class Workstation(Thread):
         self.time_counter = 0
         self.logger = logging.getLogger(__name__)
         self.monitor = Monitor.get_instance()
+        self.service_time = self.monitor.model_variables["workstation_service_times"][my_type]
         self.logger.info("Initialized monitor %s in workstation as monitor ", self.monitor)
 
     def run(self):
@@ -30,6 +32,8 @@ class Workstation(Thread):
                              self.type, threading.currentThread().ident)
 
         while True:
+            # This block needs to match the desired service time - code after is considered negligible
+            time.sleep(self.monitor.model_variables["workstation_service_times"][self.type])
             if self._has_all_components():
                 self._make_product()
                 self.logger.info("Made product %s", self.type.name)

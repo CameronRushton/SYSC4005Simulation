@@ -3,6 +3,6 @@ from Component import Component
 # but it sets us up nicely if we change how we create these.
 
 
-def create_component(type):
-    return Component(type)
+def create_component(my_type):
+    return Component(my_type)
 

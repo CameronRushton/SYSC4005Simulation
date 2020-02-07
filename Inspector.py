@@ -1,7 +1,9 @@
 import random
-import time
+import threading
 from threading import Thread
+import atexit
 import logging
+from Monitor import Monitor
 from Component import Component
 
 
@@ -16,10 +18,16 @@ class Inspector(Thread):
         self.is_working = True
         self.component = None
         self.logger = logging.getLogger(__name__)
+        self.monitor = Monitor.get_instance()
+        self.logger.info("Initialized monitor %s in inspector as monitor ", self.monitor)
 
     def run(self):
+        self.logger.info("Started inspector thread of types %s", self.types)
+        @atexit.register
+        def commit_seppuku():
+            self.logger.info("'Cleanly' killed inspector sub-thread of type: %s [THREAD: %s]",
+                             self.types, threading.currentThread().ident)
         while True:
-            time.sleep(1)
             if self.is_working:
                 self.component = self._grab_component()
             chosen_workstation, chosen_buffer = self._select_buffer(self.component.type)

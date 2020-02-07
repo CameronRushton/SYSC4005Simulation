@@ -5,5 +5,4 @@ The simulation models two inspectors taking three different components (inspecto
 random, infinite components two or three) and adding them to their respective buffers that are accessed by three workstations. 
 Once the buffers in the workstation are not empty, a product can be made. Priority is given to workstation one with three having lowest priority.
 
-Current implementation is iterative and not multithreaded. It also doesn't use the given files yet.
-Seeds for random choosing of component 2 and 3 can be given.
+Current implementation doesn't use the given files for performance reports yet.

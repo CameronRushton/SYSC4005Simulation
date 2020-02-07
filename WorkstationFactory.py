@@ -15,6 +15,7 @@ def create_workstation_three():
 
 
 def create_all_workstations():
+    # Order of this array determines priority with workstation one having highest priority
     return [create_workstation_three(),
             create_workstation_two(),
             create_workstation_one()]

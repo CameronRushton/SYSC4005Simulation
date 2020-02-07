@@ -28,16 +28,20 @@ class Inspector(Thread):
             self.logger.info("'Cleanly' killed inspector sub-thread of type: %s [THREAD: %s]",
                              self.types, threading.currentThread().ident)
         while True:
+            # This block needs to match the desired service time
             if self.is_working:
                 self.component = self._grab_component()
             chosen_workstation, chosen_buffer = self._select_buffer(self.component.type)
-            if chosen_workstation:
-                if not self.is_working:
-                    self._toggle_is_working()
+            if chosen_workstation:  # If I found a buffer not full for my component
+                if not self.is_working:  # If I'm currently blocked
+                    self._toggle_is_working()  # Set self to unblocked/working
+                    self.monitor.inspector_end_blocked(self.component.type)  # Notify monitor
                 chosen_buffer.add(self.component)
-                self.logger.info("Inspector of types %s added to buffer %s in workstation %s", self.types, chosen_buffer.type, chosen_workstation.type)
-            elif self.is_working:
-                self._toggle_is_working()
+                self.logger.info("Inspector of types %s added to buffer %s in workstation %s", self.types,
+                                 chosen_buffer.type, chosen_workstation.type)
+            elif self.is_working:  # All buffers are full and if I'm not blocked
+                self._toggle_is_working()  # Set self to blocked
+                self.monitor.inspector_start_blocked(self.component.type)  # Notify monitor
 
     def _select_buffer(self, component_type):
         best_buffer = None
@@ -47,7 +51,7 @@ class Inspector(Thread):
                 if buffer.type == component_type and not buffer.full():  # buffer.full() is not reliable (See docs).
                     best_buffer = buffer
                     best_workstation = workstation
-                    if buffer.qsize() < best_buffer.qsize():
+                    if buffer.qsize() < best_buffer.qsize():  # Pick the buffer with the lowest amount of items
                         best_buffer = buffer
                         best_workstation = workstation
         return best_workstation, best_buffer

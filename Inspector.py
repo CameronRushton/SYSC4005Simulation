@@ -1,36 +1,61 @@
-class Inspector:
-    # my_types isn't strictly necessary - we just use it to make sure that we give the inspector the right types
-    def __init__(self, known_workstations, my_types=None):
+import random
+import threading
+from threading import Thread
+import atexit
+import logging
+from Monitor import Monitor
+from Component import Component
+
+
+class Inspector(Thread):
+    # Inspector doesn't really need to know about workstations, but it makes some sense if they do
+    def __init__(self, known_workstations, seed, my_types):
+        super().__init__()
+        self.daemon = True
         self.types = my_types
+        self.seed = seed
         self.workstations = known_workstations
         self.is_working = True
+        self.component = None
+        self.logger = logging.getLogger(__name__)
+        self.monitor = Monitor.get_instance()
+        self.logger.info("Initialized monitor %s in inspector as monitor ", self.monitor)
 
-    def place_component(self, component):
-        if self.types and not self.types.contains(component.type):
-            print("Inspector of types ", self.types, " given incorrect component of type ", component.type.name)
-            return
-
-        chosen_workstation, chosen_buffer = self._select_buffer(component)
-        if chosen_workstation:
-            if not self.is_working:
+    def run(self):
+        self.logger.info("Started inspector thread of types %s", self.types)
+        @atexit.register
+        def commit_seppuku():
+            self.logger.info("'Cleanly' killed inspector sub-thread of type: %s [THREAD: %s]",
+                             self.types, threading.currentThread().ident)
+        while True:
+            if self.is_working:
+                self.component = self._grab_component()
+            chosen_workstation, chosen_buffer = self._select_buffer(self.component.type)
+            if chosen_workstation:
+                if not self.is_working:
+                    self._toggle_is_working()
+                chosen_buffer.add(self.component)
+                self.logger.info("Inspector of types %s added to buffer %s in workstation %s", self.types, chosen_buffer.type, chosen_workstation.type)
+            elif self.is_working:
                 self._toggle_is_working()
-            return chosen_workstation.add_component(component, chosen_buffer)
-        elif self.is_working:
-            self._toggle_is_working()
 
-    def _select_buffer(self, component):
+    def _select_buffer(self, component_type):
         best_buffer = None
         best_workstation = None
         for workstation in self.workstations:
             for buffer in workstation.buffers:
-                if buffer.type == component.type and buffer.has_room():
+                if buffer.type == component_type and not buffer.full():  # buffer.full() is not reliable (See docs).
                     best_buffer = buffer
                     best_workstation = workstation
-                    if len(buffer.components) < len(best_buffer.components):
+                    if buffer.qsize() < best_buffer.qsize():
                         best_buffer = buffer
                         best_workstation = workstation
         return best_workstation, best_buffer
 
     def _toggle_is_working(self):
         self.is_working = not self.is_working
-        print("Inspector of types ", self.types, " is ", "BLOCKED" if self.is_working else "WORKING")
+        self.logger.info("Inspector of types %s is %s", self.types, "WORKING" if self.is_working else "BLOCKED")
+
+    def _grab_component(self):
+        return Component(random.choice(self.types))
+

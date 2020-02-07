@@ -5,7 +5,6 @@ import threading
 import time
 from threading import Thread
 from Monitor import Monitor
-from Product import Product
 
 
 class Workstation(Thread):
@@ -44,7 +43,6 @@ class Workstation(Thread):
         for buffer in self.buffers:
             buffer.pop()
         self.products_made += 1
-        return Product(self.type)
 
 
 class Buffer(queue.Queue):

@@ -1,5 +1,6 @@
 import random
 import threading
+import time
 from threading import Thread
 import atexit
 import logging
@@ -28,9 +29,10 @@ class Inspector(Thread):
             self.logger.info("'Cleanly' killed inspector sub-thread of type: %s [THREAD: %s]",
                              self.types, threading.currentThread().ident)
         while True:
-            # This block needs to match the desired service time
             if self.is_working:
                 self.component = self._grab_component()
+                # This block needs to match the desired service time - code after is considered negligible
+                time.sleep(self.monitor.model_variables["component_service_times"][self.component.type])
             chosen_workstation, chosen_buffer = self._select_buffer(self.component.type)
             if chosen_workstation:  # If I found a buffer not full for my component
                 if not self.is_working:  # If I'm currently blocked

@@ -33,10 +33,11 @@ def read_model():
 def find_mean(data):
     total = 0
     num_entries = 300
+    sim_speed_factor = 1000  # How much faster we want to speed up the timing by to make the simulation happen faster
     for x in range(0, num_entries):
         total += float(data[x])
     mean = total / num_entries
-    return np.random.exponential(mean, 1)[0] * 60  # Draw from exponential distribution and convert to seconds
+    return np.random.exponential(mean, 1)[0] * 60 / sim_speed_factor  # Draw from exponential distribution and convert to seconds
 
 
 # Calculate the throughput of the factory and other metrics using the monitor object
@@ -68,9 +69,9 @@ def terminate_main_thread():
 
 def run():
     # Initialization - Model/system variables
-    simulation_run_time_secs = 3
+    simulation_run_time_secs = 8
     seed = 1  # The seed for inspector two to decide which component (two or three) to produce
-    number_of_trials = 0
+    number_of_trials = 1
 
     read_model()
 

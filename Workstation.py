@@ -2,6 +2,7 @@ import atexit
 import logging
 import queue
 import threading
+import time
 from threading import Thread
 from Monitor import Monitor
 from Product import Product
@@ -26,7 +27,8 @@ class Workstation(Thread):
             self.logger.info("'Cleanly' killed workstation sub-thread of type: %s [THREAD: %s]",
                              self.type, threading.currentThread().ident)
         while True:
-            # This block needs to match the desired service time
+            # This block needs to match the desired service time - code after is considered negligible
+            time.sleep(self.monitor.model_variables["workstation_service_times"][self.type])
             if self._has_all_components():
                 self._make_product()
                 self.logger.info("Made product %s", self.type.name)

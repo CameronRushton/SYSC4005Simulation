@@ -10,9 +10,8 @@ from Component import Component
 
 class Inspector(Thread):
     # Inspector doesn't really need to know about workstations, but it makes some sense if they do
-    def __init__(self, known_workstations, seed, my_types):
-        super().__init__()
-        self.daemon = True
+    def __init__(self, known_workstations, seed, my_types, *args, **kwargs):
+        super(Inspector, self).__init__(*args, **kwargs)
         self.types = my_types
         self.seed = seed
         self.workstations = known_workstations
@@ -20,15 +19,15 @@ class Inspector(Thread):
         self.component = None
         self.logger = logging.getLogger(__name__)
         self.monitor = Monitor.get_instance()
-        self.logger.info("Initialized monitor %s in inspector as monitor ", self.monitor)
+        self.logger.info("Initialized monitor %s in inspector.", self.monitor)
 
     def run(self):
         self.logger.info("Started inspector thread of types %s", self.types)
         @atexit.register
         def commit_seppuku():
-            self.logger.info("'Cleanly' killed inspector sub-thread of type: %s [THREAD: %s]",
+            self.logger.info("Cleanly killed inspector sub-thread of type: %s [THREAD: %s]",
                              self.types, threading.currentThread().ident)
-        while True:
+        while self.monitor.run_simulation:
             if self.is_working:
                 self.component = self._grab_component()
                 # This block needs to match the desired service time - code after is considered negligible
@@ -64,4 +63,3 @@ class Inspector(Thread):
 
     def _grab_component(self):
         return Component(random.choice(self.types))
-

@@ -5,28 +5,26 @@ import threading
 import time
 from threading import Thread
 from Monitor import Monitor
-from Product import Product
 
 
 class Workstation(Thread):
-    def __init__(self, my_type, my_buffers):
-        super().__init__()
-        self.daemon = True
+    def __init__(self, my_type, my_buffers, *args, **kwargs):
+        super(Workstation, self).__init__(*args, **kwargs)
         self.buffers = my_buffers
         self.type = my_type
         self.products_made = 0
         self.logger = logging.getLogger(__name__)
         self.monitor = Monitor.get_instance()
         self.service_time = self.monitor.model_variables["workstation_service_times"][my_type]
-        self.logger.info("Initialized monitor %s in workstation as monitor ", self.monitor)
+        self.logger.info("Initialized monitor %s in workstation.", self.monitor)
 
     def run(self):
         self.logger.info("Started workstation thread %s", self.type.name)
         @atexit.register
         def commit_seppuku():
-            self.logger.info("'Cleanly' killed workstation sub-thread of type: %s [THREAD: %s]",
+            self.logger.info("Cleanly killed workstation sub-thread of type: %s [THREAD: %s]",
                              self.type, threading.currentThread().ident)
-        while True:
+        while self.monitor.run_simulation:
             # This block needs to match the desired service time - code after is considered negligible
             time.sleep(self.monitor.model_variables["workstation_service_times"][self.type])
             if self._has_all_components():
@@ -44,7 +42,6 @@ class Workstation(Thread):
         for buffer in self.buffers:
             buffer.pop()
         self.products_made += 1
-        return Product(self.type)
 
 
 class Buffer(queue.Queue):

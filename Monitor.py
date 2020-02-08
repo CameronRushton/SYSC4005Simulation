@@ -7,6 +7,7 @@ import logging
 class Monitor:
     __instance = None
     __lock = Lock()
+    __reset = False
     @staticmethod
     def get_instance():
         if not Monitor.__instance:
@@ -17,13 +18,15 @@ class Monitor:
         return Monitor.__instance
 
     def __init__(self):
-        if Monitor.__instance is not None:
-            self.logger.warning("Monitor attempted instantiation when instance already created. Someone might have a bad copy...")
+        if Monitor.__instance is not None and Monitor.__reset is True:
+            print("Monitor attempted instantiation when instance already created. Someone might have a bad copy!")
         else:
             self.logger = logging.getLogger(__name__)
 
             self.factory_start_time = 0
             self.factory_end_time = 0
+            # Tells the threads to run or not
+            self.run_simulation = True
 
             # What the simulation starts with - read from the given files and converted to an average
             self.model_variables = {
@@ -135,5 +138,15 @@ class Monitor:
     def add_product(self, my_product_type):
         self.products_made[my_product_type] += 1
 
+    def end_simulation(self):
+        self.run_simulation = False
+        # If we were blocked when we were told to finish, calculate the blocked time
+        for component_type in Type:
+            # We can assume there is only one value in blocked start times
+            if len(self.inspector_blocked_start_times[component_type]) > 0:
+                self.inspector_end_blocked(component_type)
+        self.factory_end_time = time.time()
+
     def reset(self):
+        __reset = True
         self.__instance = Monitor()

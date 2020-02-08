@@ -11,7 +11,10 @@ from Type import Type
 
 logging.basicConfig(format="%(levelname)s: %(relativeCreated)6d %(threadName)s %(message)s",
                     level=logging.INFO, datefmt="%H:%M:%S")
+fh = logging.FileHandler('info.log')
+fh.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
+logger.addHandler(fh)
 
 
 def read_model(monitor):

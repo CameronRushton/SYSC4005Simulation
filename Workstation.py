@@ -12,7 +12,6 @@ class Workstation(Thread):
         super(Workstation, self).__init__(*args, **kwargs)
         self.buffers = my_buffers
         self.type = my_type
-        self.products_made = 0
         self.logger = logging.getLogger(__name__)
         self.monitor = Monitor.get_instance()
         self.service_time = self.monitor.model_variables["workstation_service_times"][my_type]
@@ -41,7 +40,6 @@ class Workstation(Thread):
     def _make_product(self):
         for buffer in self.buffers:
             buffer.pop()
-        self.products_made += 1
 
 
 class Buffer(queue.Queue):

@@ -15,6 +15,10 @@ fh = logging.FileHandler('info.log')
 fh.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 logger.addHandler(fh)
+# How much faster we want to speed up the timing by to make the simulation run faster
+# We'll read the values in as time in minutes. 1 minute = 60 000ms and if we divide by 1000, we get 60ms
+# So, every 60ms is one minute.
+sim_speed_factor = 1000
 
 
 def read_model(monitor):
@@ -35,26 +39,28 @@ def read_model(monitor):
 def find_mean(data):
     total = 0
     num_entries = 300
-    sim_speed_factor = 1000  # How much faster we want to speed up the timing by to make the simulation run faster
     for x in range(0, num_entries):
         total += float(data[x])
     mean = total / num_entries
+    # TODO: This mistakenly takes only the first value. We want to keep this distrib. and have some rng values to pick
+    # TODO: ... points in the distribution to be the service time. Right now, the service times are the same thoughout which is wrong.
+    # TODO: We should convert to seconds and divide by the speed factor when we want to actually use the time and get a new one once used.
     return np.random.exponential(mean, 1)[0] * 60 / sim_speed_factor  # Draw from exponential distribution and convert to seconds
 
 
 # Calculate the throughput of the factory and other metrics using the monitor object
 def calculate_performance(monitor):
-    calc_factory_runtime = monitor.factory_end_time - monitor.factory_start_time
+    calc_factory_runtime = (monitor.factory_end_time - monitor.factory_start_time) * sim_speed_factor / 60
     logger.info("Product ones made: %s", monitor.products_made[Type.ONE])
     logger.info("Product twos made: %s", monitor.products_made[Type.TWO])
     logger.info("Product threes made: %s", monitor.products_made[Type.THREE])
-    logger.info("Factory run time: %s", calc_factory_runtime)
-    logger.info("Factory throughput for product one: %s", monitor.products_made[Type.ONE]/calc_factory_runtime)
-    logger.info("Factory throughput for product two: %s", monitor.products_made[Type.TWO]/calc_factory_runtime)
-    logger.info("Factory throughput for product three: %s", monitor.products_made[Type.THREE]/calc_factory_runtime)
-    logger.info("Inspector one component one's total block time: %s", sum(monitor.component_block_times[Type.ONE]))
-    logger.info("Inspector two component two's total block time: %s", sum(monitor.component_block_times[Type.TWO]))
-    logger.info("Inspector two component three's total block time: %s", sum(monitor.component_block_times[Type.THREE]))
+    logger.info("Factory run time (mins): %s", calc_factory_runtime)
+    logger.info("Factory throughput (products/min) for product one: %s", monitor.products_made[Type.ONE]/calc_factory_runtime)
+    logger.info("Factory throughput (products/min) for product two: %s", monitor.products_made[Type.TWO]/calc_factory_runtime)
+    logger.info("Factory throughput (products/min) for product three: %s", monitor.products_made[Type.THREE]/calc_factory_runtime)
+    logger.info("Inspector one component one's total block time (mins): %s", sum(monitor.component_block_times[Type.ONE])*sim_speed_factor/60)
+    logger.info("Inspector two component two's total block time (mins): %s", sum(monitor.component_block_times[Type.TWO])*sim_speed_factor/60)
+    logger.info("Inspector two component three's total block time (mins): %s", sum(monitor.component_block_times[Type.THREE])*sim_speed_factor/60)
 
 
 def terminate_threads(monitor):
@@ -68,7 +74,9 @@ def terminate_threads(monitor):
 
 def run():
     # Initialization - Model/system variables
-    simulation_run_time_secs = 5
+    # If 60ms = 1min in sim, 5s = 5000ms irl, then simulation ran for 83.3mins
+    # If we want to run it for 1000mins in sim, that's 60 000ms irl = 60s.
+    simulation_run_time_secs = 180
     seed = 1  # The seed for inspector two to decide which component (two or three) to produce
     number_of_trials = 1
 

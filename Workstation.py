@@ -8,13 +8,13 @@ from Monitor import Monitor
 
 
 class Workstation(Thread):
-    def __init__(self, my_type, my_buffers, *args, **kwargs):
+    def __init__(self, my_type, my_buffers, mean_st, *args, **kwargs):
         super(Workstation, self).__init__(*args, **kwargs)
         self.buffers = my_buffers
         self.type = my_type
+        self.mean_st = mean_st
         self.logger = logging.getLogger(__name__)
         self.monitor = Monitor.get_instance()
-        self.service_time = self.monitor.model_variables["workstation_service_times"][my_type]
         self.logger.info("Initialized monitor %s in workstation.", self.monitor)
 
     def run(self):
@@ -25,7 +25,7 @@ class Workstation(Thread):
                              self.type, threading.currentThread().ident)
         while self.monitor.run_simulation:
             # This block needs to match the desired service time - code after is considered negligible
-            time.sleep(self.monitor.model_variables["workstation_service_times"][self.type])
+            time.sleep(self.monitor.sample_service_time(self.mean_st))
             if self._has_all_components():
                 self._make_product()
                 self.logger.info("Made product %s", self.type.name)

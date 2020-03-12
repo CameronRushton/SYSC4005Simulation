@@ -1,5 +1,6 @@
 import time
 from Type import Type
+import numpy as np
 from threading import Lock
 import logging
 
@@ -28,18 +29,9 @@ class Monitor:
             # Tells the threads to run or not
             self.run_simulation = True
 
-            # What the simulation starts with - read from the given files and converted to an average
+            # TODO: don't need this here anymore
             self.model_variables = {
-                "component_service_times": {
-                    Type.ONE: 0,
-                    Type.TWO: 0,
-                    Type.THREE: 0
-                },
-                "workstation_service_times": {
-                    Type.ONE: 0,
-                    Type.TWO: 0,
-                    Type.THREE: 0
-                }
+                "sim_speed_factor": 1000
             }
 
             # The starting time is takes for an inspector to place a component in a buffer
@@ -111,6 +103,7 @@ class Monitor:
             time.time() - self.inspector_blocked_start_times[my_component_type].pop()
         )
 
+    # TODO: since we sample the service time, we know what it's going to be so there's no need to calculate it
     def inspector_start_service_time(self, my_component_type):
         self.inspector_component_start_service_times[my_component_type].append(time.time())
 
@@ -127,6 +120,7 @@ class Monitor:
             time.time() - self.workstation_start_idle_times[my_workstation_type].pop()
         )
 
+    # TODO: since we sample the service time, we know what it's going to be so there's no need to calculate it
     def workstation_start_service_time(self, my_workstation_type):
         self.workstation_start_service_times[my_workstation_type].append(time.time())
 
@@ -137,6 +131,12 @@ class Monitor:
 
     def add_product(self, my_product_type):
         self.products_made[my_product_type] += 1
+
+    def sample_service_time(self, mean):
+        return self.convert_st_mins_to_sim_speed(np.random.exponential(mean, 1)[0])
+
+    def convert_st_mins_to_sim_speed(self, minutes):
+        return minutes * 60 / self.model_variables["sim_speed_factor"]
 
     def end_simulation(self):
         self.run_simulation = False

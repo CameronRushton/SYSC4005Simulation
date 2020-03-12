@@ -3,12 +3,12 @@ import threading
 import time
 
 from Inspector import Inspector
-import WorkstationFactory
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 from Monitor import Monitor
 from Type import Type
+from Workstation import Workstation, Buffer
 
 logging.basicConfig(format="%(levelname)s: %(relativeCreated)6d %(threadName)s %(message)s",
                     level=logging.INFO, datefmt="%H:%M:%S")
@@ -16,34 +16,24 @@ fh = logging.FileHandler('info.log')
 fh.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 logger.addHandler(fh)
+
+# Initialization - Model/system variables
+
+# We'll read the values in as time in minutes. 1 minute = 60 000ms and if we divide by 1000 (sim_speed_factor = 1000),
+# we get 60ms, so every 60ms real time is one minute in the simulation.
+# If 60ms = 1min in sim, 5s irl = 5000ms irl, then simulation ran for 83.3mins
+# If we want to run it for 1000mins in sim, that's 60 000ms irl = 60s irl.
+# if simulation_run_time_secs = 180 irl, the simulation runs for 3000mins in simulation
+simulation_run_time_secs = 5
 # How much faster we want to speed up the timing by to make the simulation run faster
-# We'll read the values in as time in minutes. 1 minute = 60 000ms and if we divide by 1000, we get 60ms
-# So, every 60ms is one minute.
 sim_speed_factor = 1000
-# The seed of the RVs used when sampling from a distribution
+
+# TODO: multiple trials with one command not implemented
+number_of_trials = 1
+
+# The seed of the RVs used when sampling from a distribution & for inspector two to decide which component (two or three) to produce
 seed = 123
 np.random.seed(seed)
-
-
-def read_model(monitor):
-    component1_service_times = open('servinsp1.dat').read().splitlines()
-    mean = find_mean(component1_service_times)
-    samples = []
-    for i in range(300):
-        samples.append(sample_from_distribution(mean))
-
-    
-    # monitor.model_variables["component_service_times"][Type.ONE] = sample_from_distribution(component1_service_times)
-    # component2_service_times = open('servinsp22.dat').read().splitlines()
-    # monitor.model_variables["component_service_times"][Type.TWO] = find_mean(component2_service_times)
-    # component3_service_times = open('servinsp23.dat').read().splitlines()
-    # monitor.model_variables["component_service_times"][Type.THREE] = find_mean(component3_service_times)
-    # workstation1_service_times = open('ws1.dat').read().splitlines()
-    # monitor.model_variables["workstation_service_times"][Type.ONE] = find_mean(workstation1_service_times)
-    # workstation2_service_times = open('ws2.dat').read().splitlines()
-    # monitor.model_variables["workstation_service_times"][Type.TWO] = find_mean(workstation2_service_times)
-    # workstation3_service_times = open('ws3.dat').read().splitlines()
-    # monitor.model_variables["workstation_service_times"][Type.THREE] = find_mean(workstation3_service_times)
 
 
 def find_mean(data):
@@ -52,15 +42,6 @@ def find_mean(data):
     for x in range(0, num_entries):
         total += float(data[x])
     return total / num_entries
-
-
-def sample_from_distribution(mean):
-
-    # TODO: This mistakenly takes only the first value. We want to keep this distrib. and have some rng values to pick
-    # TODO: ... points in the distribution to be the service time. Right now, the service times are the same thoughout which is wrong.
-    # TODO: We should convert to seconds and divide by the speed factor when we want to actually use the time and get a new one once used.
-    # Sample this a bunch of times to see if the histogram is the same as the histogram generated from the given data, we're good, else, try 1/mean here
-    return np.random.exponential(mean, 1)[0] #* 60 / sim_speed_factor  # Draw from exponential distribution and convert to seconds
 
 
 # Calculate the throughput of the factory and other metrics using the monitor object
@@ -88,13 +69,6 @@ def terminate_threads(monitor):
 
 
 def run():
-    # Initialization - Model/system variables
-    # If 60ms = 1min in sim, 5s = 5000ms irl, then simulation ran for 83.3mins
-    # If we want to run it for 1000mins in sim, that's 60 000ms irl = 60s.
-    simulation_run_time_secs = 180
-    seed = 1  # The seed for inspector two to decide which component (two or three) to produce
-    number_of_trials = 1
-
     for i in range(number_of_trials):
 
         monitor = Monitor().get_instance()
@@ -106,16 +80,45 @@ def run():
         logger.info("----- Running Trial Number %s -----", i)
 
         # TODO: separate reading the files from making the calculation for multiple trials
-        read_model(monitor)
-        print(monitor.model_variables)
+        monitor.model_variables["sim_speed_factor"] = sim_speed_factor
 
-        np.random.seed(seed)
+        component1_service_times = open('servinsp1.dat').read().splitlines()
+        component2_service_times = open('servinsp22.dat').read().splitlines()
+        component3_service_times = open('servinsp23.dat').read().splitlines()
+        workstation1_service_times = open('ws1.dat').read().splitlines()
+        workstation2_service_times = open('ws2.dat').read().splitlines()
+        workstation3_service_times = open('ws3.dat').read().splitlines()
+        # Sanity check for exponential distribution sampling
+        # samples = []
+        # for i in range(300):
+        #     samples.append(monitor.sample_service_time(find_mean(component1_service_times))
+        # samples.sort()
+        # plt.plot(samples, 'bo')
+        # plt.show()
 
         # We need workstations to constantly monitor their buffers and make products
         # We need the inspectors to constantly grab components and put them in the workstation buffer
-        workstations = WorkstationFactory.create_all_workstations()
-        inspector_one = Inspector(known_workstations=workstations, seed=seed, my_types=[Type.ONE])
-        inspector_two = Inspector(known_workstations=workstations, seed=seed, my_types=[Type.TWO, Type.THREE])
+        # The order matters! Workstation 1 has highest priority and Workstation 3 has the lowest priority
+        workstations = [
+            Workstation(my_type=Type.THREE,
+                        my_buffers=[Buffer(Type.ONE), Buffer(Type.THREE)],
+                        mean_st=find_mean(workstation1_service_times)),
+            Workstation(my_type=Type.TWO,
+                        my_buffers=[Buffer(Type.ONE), Buffer(Type.TWO)],
+                        mean_st=find_mean(workstation2_service_times)),
+            Workstation(my_type=Type.ONE,
+                        my_buffers=[Buffer(Type.ONE)],
+                        mean_st=find_mean(workstation3_service_times))
+        ]
+        inspector_one = Inspector(known_workstations=workstations, seed=seed, my_types=[Type.ONE],
+                                  mean_st_components={
+                                      Type.ONE: find_mean(component1_service_times)
+                                  })
+        inspector_two = Inspector(known_workstations=workstations, seed=seed, my_types=[Type.TWO, Type.THREE],
+                                  mean_st_components={
+                                      Type.TWO: find_mean(component2_service_times),
+                                      Type.THREE: find_mean(component3_service_times)
+                                  })
 
         # Start threads
         monitor.factory_start_time = time.time()

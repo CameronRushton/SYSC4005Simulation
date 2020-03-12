@@ -5,6 +5,7 @@ import time
 from Inspector import Inspector
 import WorkstationFactory
 
+import matplotlib.pyplot as plt
 import numpy as np
 from Monitor import Monitor
 from Type import Type
@@ -19,21 +20,30 @@ logger.addHandler(fh)
 # We'll read the values in as time in minutes. 1 minute = 60 000ms and if we divide by 1000, we get 60ms
 # So, every 60ms is one minute.
 sim_speed_factor = 1000
+# The seed of the RVs used when sampling from a distribution
+seed = 123
+np.random.seed(seed)
 
 
 def read_model(monitor):
     component1_service_times = open('servinsp1.dat').read().splitlines()
-    monitor.model_variables["component_service_times"][Type.ONE] = find_mean(component1_service_times)
-    component2_service_times = open('servinsp22.dat').read().splitlines()
-    monitor.model_variables["component_service_times"][Type.TWO] = find_mean(component2_service_times)
-    component3_service_times = open('servinsp23.dat').read().splitlines()
-    monitor.model_variables["component_service_times"][Type.THREE] = find_mean(component3_service_times)
-    workstation1_service_times = open('ws1.dat').read().splitlines()
-    monitor.model_variables["workstation_service_times"][Type.ONE] = find_mean(workstation1_service_times)
-    workstation2_service_times = open('ws2.dat').read().splitlines()
-    monitor.model_variables["workstation_service_times"][Type.TWO] = find_mean(workstation2_service_times)
-    workstation3_service_times = open('ws3.dat').read().splitlines()
-    monitor.model_variables["workstation_service_times"][Type.THREE] = find_mean(workstation3_service_times)
+    mean = find_mean(component1_service_times)
+    samples = []
+    for i in range(300):
+        samples.append(sample_from_distribution(mean))
+
+    
+    # monitor.model_variables["component_service_times"][Type.ONE] = sample_from_distribution(component1_service_times)
+    # component2_service_times = open('servinsp22.dat').read().splitlines()
+    # monitor.model_variables["component_service_times"][Type.TWO] = find_mean(component2_service_times)
+    # component3_service_times = open('servinsp23.dat').read().splitlines()
+    # monitor.model_variables["component_service_times"][Type.THREE] = find_mean(component3_service_times)
+    # workstation1_service_times = open('ws1.dat').read().splitlines()
+    # monitor.model_variables["workstation_service_times"][Type.ONE] = find_mean(workstation1_service_times)
+    # workstation2_service_times = open('ws2.dat').read().splitlines()
+    # monitor.model_variables["workstation_service_times"][Type.TWO] = find_mean(workstation2_service_times)
+    # workstation3_service_times = open('ws3.dat').read().splitlines()
+    # monitor.model_variables["workstation_service_times"][Type.THREE] = find_mean(workstation3_service_times)
 
 
 def find_mean(data):
@@ -41,11 +51,16 @@ def find_mean(data):
     num_entries = 300
     for x in range(0, num_entries):
         total += float(data[x])
-    mean = total / num_entries
+    return total / num_entries
+
+
+def sample_from_distribution(mean):
+
     # TODO: This mistakenly takes only the first value. We want to keep this distrib. and have some rng values to pick
     # TODO: ... points in the distribution to be the service time. Right now, the service times are the same thoughout which is wrong.
     # TODO: We should convert to seconds and divide by the speed factor when we want to actually use the time and get a new one once used.
-    return np.random.exponential(mean, 1)[0] * 60 / sim_speed_factor  # Draw from exponential distribution and convert to seconds
+    # Sample this a bunch of times to see if the histogram is the same as the histogram generated from the given data, we're good, else, try 1/mean here
+    return np.random.exponential(mean, 1)[0] #* 60 / sim_speed_factor  # Draw from exponential distribution and convert to seconds
 
 
 # Calculate the throughput of the factory and other metrics using the monitor object

@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import math
 
+from matplotlib.ticker import FormatStrFormatter
+
 component1_service_times = open('servinsp1.dat').read().splitlines()
 component2_service_times = open('servinsp22.dat').read().splitlines()
 component3_service_times = open('servinsp23.dat').read().splitlines()
@@ -21,20 +23,19 @@ def write_array_vertically_to_file(array, file):
 # Init. input data #
 ####################
 seed = 1
-np.random.seed(seed)
-num_bins = 40
 f = open("workstation_3_st_data_TEST.txt", "w+")
 data = workstation3_service_times
-
 
 #################
 # Program start #
 #################
+np.random.seed(seed)
 # Convert values from strings to floats
 data = np.array(data).astype(np.float)
 
 num_samples = len(data)
 f.write("num_samples: " + str(num_samples) + "\n")
+num_bins = math.floor(math.sqrt(num_samples))
 f.write("num_bins: " + str(num_bins) + "\n")
 f.write("data: \n")
 write_array_vertically_to_file(data, f)
@@ -60,7 +61,6 @@ f.write("sorted samples from distribution for Q-Q plot: \n")
 samples_from_distribution.sort()
 write_array_vertically_to_file(samples_from_distribution, f)
 
-# Uncomment me to create the Q-Q plot
 sm.qqplot_2samples(data, samples_from_distribution, ylabel="Quantiles of input service times (minutes)",
                    xlabel="Quantiles of drawn service times (minutes) (exp. distrib.)", line='45', ax=axs[0])
 
@@ -70,11 +70,13 @@ observed_frequencies, junk = np.histogram(data, bins=np.arange(min_val, max_val 
 f.write("histogram frequencies in each bin: \n")
 write_array_vertically_to_file(observed_frequencies, f)
 
-# Uncomment me to create the histogram
-axs[1].hist(data, bins=np.arange(min_val, max_val + binwidth, binwidth), alpha=0.8)
+counts, bins, patches = axs[1].hist(data, bins=np.arange(min_val, max_val + binwidth, binwidth), alpha=0.8, edgecolor='gray')
 axs[1].set_title('Workstation 3 Service Times')
 axs[1].set_xlabel(str(num_bins) + ' service time (mins) bins of width ' + str(binwidth))
 axs[1].set_ylabel('Frequency')
+axs[1].set_xticks(bins)
+# Set the xaxis's tick labels to be formatted with 1 decimal place
+axs[1].xaxis.set_major_formatter(FormatStrFormatter('%0.1f'))
 
 
 # Chi-square test

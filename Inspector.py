@@ -10,11 +10,12 @@ from Component import Component
 
 class Inspector(Thread):
     # Inspector doesn't really need to know about workstations, but it makes some sense if they do
-    def __init__(self, known_workstations, seed, my_types, *args, **kwargs):
+    def __init__(self, known_workstations, seed, my_types, mean_st_components, *args, **kwargs):
         super(Inspector, self).__init__(*args, **kwargs)
         self.types = my_types
         self.seed = seed
         self.workstations = known_workstations
+        self.mean_st_components = mean_st_components
         self.is_working = True
         self.component = None
         self.logger = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ class Inspector(Thread):
             if self.is_working:
                 self.component = self._grab_component()
                 # This block needs to match the desired service time - code after is considered negligible
-                time.sleep(self.monitor.model_variables["component_service_times"][self.component.type])
+                time.sleep(self.monitor.sample_service_time(self.mean_st_components[self.component.type]))
             chosen_workstation, chosen_buffer = self._select_buffer(self.component.type)
             if chosen_workstation:  # If I found a buffer not full for my component
                 if not self.is_working:  # If I'm currently blocked

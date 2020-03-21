@@ -24,12 +24,12 @@ class Workstation(Thread):
             self.logger.info("Cleanly killed workstation sub-thread of type: %s [THREAD: %s]",
                              self.type, threading.currentThread().ident)
         while self.monitor.run_simulation:
-            # This block needs to match the desired service time - code after is considered negligible
-            time.sleep(self.monitor.sample_service_time(self.mean_st))
             if self._has_all_components():
                 self._make_product()
                 self.logger.info("Made product %s", self.type.name)
                 self.monitor.add_product(self.type)
+        # Simulation has stopped
+        self._empty_buffers()
 
     def _has_all_components(self):
         for buffer in self.buffers:
@@ -38,8 +38,19 @@ class Workstation(Thread):
         return True
 
     def _make_product(self):
+        self.logger.info("Making product %s", self.type.name)
         for buffer in self.buffers:
-            buffer.pop()
+            self.monitor.add_component_queue_time(buffer.pop().queue_arrival_time, self.type, buffer.type)
+        # This block needs to match the desired service time - code before is considered negligible
+        # This means that the workstation can be assembling a product while its buffer(s) is/are full, meaning we can
+        # ...potentially make 3 products in a row without filling the queue in that time. Finish the one it currently
+        # ...has and then pull the next two from the queue.
+        time.sleep(self.monitor.sample_service_time(self.mean_st))
+
+    def _empty_buffers(self):
+        for buffer in self.buffers:
+            while not buffer.empty():
+                self.monitor.add_component_queue_time(buffer.pop().queue_arrival_time, self.type, buffer.type)
 
 
 class Buffer(queue.Queue):
@@ -50,6 +61,7 @@ class Buffer(queue.Queue):
     def add(self, component):
         if component.type == self.type:
             self.put(component)
+            component.queue_arrival_time = time.time()
 
     def pop(self):
-        self.get()  # We dont need to return the value here
+        return self.get()

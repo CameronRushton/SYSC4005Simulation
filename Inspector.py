@@ -13,7 +13,7 @@ class Inspector(Thread):
     def __init__(self, known_workstations, seed, my_types, mean_st_components, *args, **kwargs):
         super(Inspector, self).__init__(*args, **kwargs)
         self.types = my_types
-        self.seed = seed
+        random.seed(seed)
         self.workstations = known_workstations
         self.mean_st_components = mean_st_components
         self.is_working = True
@@ -51,8 +51,9 @@ class Inspector(Thread):
         for workstation in self.workstations:
             for buffer in workstation.buffers:
                 if buffer.type == component_type and not buffer.full():  # buffer.full() is not reliable (See docs).
-                    best_buffer = buffer
-                    best_workstation = workstation
+                    if best_buffer is None:
+                        best_buffer = buffer
+                        best_workstation = workstation
                     if buffer.qsize() < best_buffer.qsize():  # Pick the buffer with the lowest amount of items
                         best_buffer = buffer
                         best_workstation = workstation

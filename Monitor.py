@@ -105,8 +105,6 @@ class Monitor:
             #         },
             #      etc...
             # }
-            # TODO: This is currently calculated by recording the time the component enqueued and then *dequeued*.
-            # TODO: ... The components currently queued are not measured when the simulation stops.
             self.component_queue_times = {}
 
             Monitor.__instance = self

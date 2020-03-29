@@ -93,15 +93,32 @@ class Monitor:
                 Type.TWO: 0,
                 Type.THREE: 0,
             }
+
+            # This dictionary should end up looking like the following:
+            # self.component_queue_times = {
+            #       workstation TYPE.ONE: {
+            #            buffer TYPE.ONE: [(float) queue time, ...]
+            #        },
+            #        workstation TYPE.TWO: {
+            #             buffer TYPE.ONE: [(float) queue time, ...]
+            #             buffer TYPE.TWO: [(float) queue time, ...]
+            #         },
+            #      etc...
+            # }
+            self.component_queue_times = {}
+
             Monitor.__instance = self
 
     def inspector_start_blocked(self, my_component_type):
         self.inspector_blocked_start_times[my_component_type].append(time.time())
 
     def inspector_end_blocked(self, my_component_type):
-        self.component_block_times[my_component_type].append(
-            time.time() - self.inspector_blocked_start_times[my_component_type].pop()
-        )
+        if len(self.inspector_blocked_start_times[my_component_type]) is not 0:
+            self.component_block_times[my_component_type].append(
+                time.time() - self.inspector_blocked_start_times[my_component_type].pop()
+            )
+        else:
+            self.logger.error("Tried to log inspector block time, but no block start time was found!")
 
     # TODO: since we sample the service time, we know what it's going to be so there's no need to calculate it
     def inspector_start_service_time(self, my_component_type):
@@ -137,6 +154,13 @@ class Monitor:
 
     def convert_st_mins_to_sim_speed(self, minutes):
         return minutes * 60 / self.model_variables["sim_speed_factor"]
+
+    def add_component_queue_time(self, queue_arrival_time, workstation_type, buffer_type):
+        if workstation_type not in self.component_queue_times.keys():
+            self.component_queue_times[workstation_type] = {}
+        if buffer_type not in self.component_queue_times[workstation_type].keys():
+            self.component_queue_times[workstation_type][buffer_type] = []
+        self.component_queue_times[workstation_type][buffer_type].append(time.time() - queue_arrival_time)
 
     def end_simulation(self):
         self.run_simulation = False

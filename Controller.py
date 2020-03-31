@@ -23,11 +23,11 @@ logger.addHandler(fh)
 # If 60ms = 1min in sim, 5s irl = 5000ms irl, then simulation ran for 83.3mins
 # If we want to run it for 1000mins in sim, that's 60 000ms irl = 60s irl.
 # if simulation_run_time_secs = 180 irl, the simulation runs for 3000mins in simulation
-init_bias_min_in_sim = 700
-min_in_sim = 1500
+init_bias_min_in_sim = 350
+min_in_sim = 2000
 
 # How much faster we want to speed up the timing by to make the simulation run faster
-sim_speed_factor = 1000
+sim_speed_factor = 5000
 
 simulation_run_time_secs = (min_in_sim / sim_speed_factor) * 60
 init_bias_time = (init_bias_min_in_sim / sim_speed_factor) * 60
@@ -191,21 +191,6 @@ def calculate_performance(monitor):
     avg_c2_in_sys = (avg_c2_time_blocked + avg_queue_time_w2_c2) * (num_c2_grabbed / data_collection_time)
     avg_c3_in_sys = (avg_c3_time_blocked + avg_queue_time_w3_c3) * (num_c3_grabbed / data_collection_time)
     logger.info("Average number of components in the system: %s", avg_c1_in_sys + avg_c2_in_sys + avg_c3_in_sys)
-
-    logger.info("")
-    prod1_made = monitor.products_made[Type.ONE]
-    logger.info("Factory throughput (products/hour) for product one: %s",
-                prod1_made / data_collection_time * 60)
-    prod2_made = monitor.products_made[Type.TWO]
-    logger.info("Factory throughput (products/hour) for product two: %s",
-                prod2_made / data_collection_time * 60)
-    prod3_made = monitor.products_made[Type.THREE]
-    logger.info("Factory throughput (products/hour) for product three: %s",
-                prod3_made / data_collection_time * 60)
-    total_products_made = prod1_made + prod2_made + prod3_made
-    logger.info("Factory total throughput (products/hour): %s",
-                total_products_made / data_collection_time * 60)
-    logger.info("")
     i1_prop_block = c1_block_time_mins / data_collection_time
     i2_block_time_mins = c2_block_time_mins + c3_block_time_mins
     i2_prop_block = i2_block_time_mins / data_collection_time
@@ -215,7 +200,6 @@ def calculate_performance(monitor):
     logger.info("Inspector two total block time (mins): %s", i2_block_time_mins)
     logger.info("Inspector two proportion of time blocked: %s %%",
                 i2_prop_block * 100)
-    logger.info("")
 
 
 def terminate_threads(monitor):

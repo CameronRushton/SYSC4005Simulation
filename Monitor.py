@@ -9,6 +9,7 @@ class Monitor:
     __instance = None
     __lock = Lock()
     __reset = False
+
     @staticmethod
     def get_instance():
         if not Monitor.__instance:
@@ -26,6 +27,7 @@ class Monitor:
 
             self.factory_start_time = 0
             self.factory_end_time = 0
+            self.init_bias = 0
             # Tells the threads to run or not
             self.run_simulation = True
 
@@ -110,44 +112,94 @@ class Monitor:
             Monitor.__instance = self
 
     def inspector_start_blocked(self, my_component_type):
-        self.inspector_blocked_start_times[my_component_type].append(time.time())
+        if time.time() > self.init_bias:
+            self.inspector_blocked_start_times[my_component_type].append(time.time())
 
     def inspector_end_blocked(self, my_component_type):
-        if len(self.inspector_blocked_start_times[my_component_type]) is not 0:
-            self.component_block_times[my_component_type].append(
-                time.time() - self.inspector_blocked_start_times[my_component_type].pop()
-            )
-        else:
-            self.logger.error("Tried to log inspector block time, but no block start time was found!")
+        if time.time() > self.init_bias:
+            if len(self.inspector_blocked_start_times[my_component_type]) == 0:
+                # if time.time() < (self.init_bias + 30):  # After this time should be an error
+                #     self.component_block_times[my_component_type].append(
+                #         time.time() - self.init_bias)  # chance to start block before data collection begins
+                #     self.logger.error(
+                #         "Block time started before data collection, added block time of %s to component %s",
+                #         time.time() - self.init_bias,
+                #         my_component_type)
+                # else:
+                    self.logger.error(
+                        "Tried to log inspector component %s service time, but no service start time was found!",
+                        my_component_type)
+            else:
+                self.component_block_times[my_component_type].append(
+                    time.time() - self.inspector_blocked_start_times[my_component_type].pop())
 
     # TODO: since we sample the service time, we know what it's going to be so there's no need to calculate it
     def inspector_start_service_time(self, my_component_type):
-        self.inspector_component_start_service_times[my_component_type].append(time.time())
+        if time.time() > self.init_bias:
+            self.inspector_component_start_service_times[my_component_type].append(time.time())
 
     def inspector_end_service_time(self, my_component_type):
-        self.inspector_component_service_times[my_component_type].append(
-            time.time() - self.inspector_component_start_service_times[my_component_type].pop()
-        )
+        if time.time() > self.init_bias:
+            if len(self.inspector_component_start_service_times) == 0:
+                # if time.time() < (self.init_bias + 30):
+                #     self.inspector_component_service_times[my_component_type].append(
+                #         time.time() - self.init_bias)
+                #     self.logger.error(
+                #         "Service time started before data collection, added inspector service time of %s to component %s",
+                #         time.time() - self.init_bias,
+                #         my_component_type)
+                # else:
+                    self.logger.error(
+                        "Tried to log inspector component %s service time, but no service start time was found!",
+                        my_component_type)
+            else:
+                self.inspector_component_service_times[my_component_type].append(
+                    time.time() - self.inspector_component_start_service_times[my_component_type].pop())
 
     def workstation_start_idle(self, my_workstation_type):
-        self.workstation_start_idle_times[my_workstation_type].append(time.time())
+        if time.time() > self.init_bias:
+            self.workstation_start_idle_times[my_workstation_type].append(time.time())
 
     def workstation_end_idle(self, my_workstation_type):
-        self.workstation_idle_times[my_workstation_type].append(
-            time.time() - self.workstation_start_idle_times[my_workstation_type].pop()
-        )
+        if time.time() > self.init_bias:
+            if len(self.workstation_start_idle_times) == 0:
+                # if time.time() < (self.init_bias + 30):
+                #     self.workstation_idle_times[my_workstation_type].append(time.time() - self.init_bias)
+                #     self.logger.error("Idle started before data collection, added time of %s to workstation %s",
+                #                       time.time() - self.init_bias,
+                #                       my_workstation_type)
+                # else:
+                    self.logger.error("Tried to log workstation %s idle time, but no idle start time was found!",
+                                      my_workstation_type)
+            else:
+                self.workstation_idle_times[my_workstation_type].append(
+                    time.time() - self.workstation_start_idle_times[my_workstation_type].pop())
 
     # TODO: since we sample the service time, we know what it's going to be so there's no need to calculate it
     def workstation_start_service_time(self, my_workstation_type):
-        self.workstation_start_service_times[my_workstation_type].append(time.time())
+        if time.time() > self.init_bias:
+            self.workstation_start_service_times[my_workstation_type].append(time.time())
 
     def workstation_end_service_time(self, my_workstation_type):
-        self.workstation_service_times[my_workstation_type].append(
-            time.time() - self.workstation_start_service_times[my_workstation_type].pop()
-        )
+        if time.time() > self.init_bias:
+            if len(self.workstation_start_service_times) == 0:
+                # if time.time() < (self.init_bias + 30):
+                #     self.workstation_service_times[my_workstation_type].append(
+                #         time.time() - self.init_bias)
+                #     self.logger.error(
+                #         "Service time started before data collection, added service time of %s to workstation %s",
+                #         time.time() - self.init_bias,
+                #         my_workstation_type)
+                # else:
+                    self.logger.error("Tried to log workstation %s service time, but no service start time was found!",
+                                      my_workstation_type)
+            else:
+                self.workstation_service_times[my_workstation_type].append(
+                    time.time() - self.workstation_start_service_times[my_workstation_type].pop())
 
     def add_product(self, my_product_type):
-        self.products_made[my_product_type] += 1
+        if time.time() > self.init_bias:
+            self.products_made[my_product_type] += 1
 
     def sample_service_time(self, mean):
         return self.convert_st_mins_to_sim_speed(np.random.exponential(mean, 1)[0])
@@ -160,7 +212,14 @@ class Monitor:
             self.component_queue_times[workstation_type] = {}
         if buffer_type not in self.component_queue_times[workstation_type].keys():
             self.component_queue_times[workstation_type][buffer_type] = []
-        self.component_queue_times[workstation_type][buffer_type].append(time.time() - queue_arrival_time)
+        if time.time() > self.init_bias:
+            if queue_arrival_time < self.init_bias:
+                self.component_queue_times[workstation_type][buffer_type].append(time.time() - self.init_bias)
+                self.logger.error(
+                    "Tried to log workstation %s queue time in buffer %s, but arrival time was before data collection, added queue time of %s",
+                    workstation_type, buffer_type, time.time() - self.init_bias)
+            else:
+                self.component_queue_times[workstation_type][buffer_type].append(time.time() - queue_arrival_time)
 
     def end_simulation(self):
         self.run_simulation = False

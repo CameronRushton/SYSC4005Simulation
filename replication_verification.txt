@@ -1,0 +1,30 @@
+p1 throughput mean: 3.367976931962416
+p1 throughput variance: 0.06733519420789877
+p1 throughput sample variance: 0.07087915179778816
+p1 throughput 95% confidence interval: (3.2433768070766673, 3.492577056848165)
+p1 throughput 95% confidence interval does not exceed 20% of estimated value?: yes
+
+p2 throughput mean: 0.5748490094842633
+p2 throughput variance: 0.028327265842350006
+p2 throughput sample variance: 0.02981817457089475
+p2 throughput 95% confidence interval: (0.4940325634236572, 0.6556654555448694)
+p2 throughput 95% confidence interval does not exceed 20% of estimated value?: yes
+
+p3 throughput mean: 0.6199801964806966
+p3 throughput variance: 0.0443334316256709
+p3 throughput sample variance: 0.04666677013228516
+p3 throughput 95% confidence interval: (0.5188774173648094, 0.721082975596584)
+p3 throughput 95% confidence interval does not exceed 20% of estimated value?: yes
+
+inspector 1 proportion blocked mean: 0.0
+inspector 1 proportion blocked variance: 0.0
+inspector 1 proportion blocked sample variance: 0.0
+inspector 1 proportion blocked 95% confidence interval sanity: (0.0, 0.0)
+inspector 1 proportion blocked 95% confidence interval does not exceed 20% of estimated value?: yes
+
+inspector 2 proportion blocked mean: 63.33913934737711
+inspector 2 proportion blocked variance: 160.6858193432991
+inspector 2 proportion blocked sample variance: 169.14296772978852
+inspector 2 proportion blocked 95% confidence interval: (57.252379109605606, 69.42589958514861)
+inspector 2 proportion blocked 95% confidence interval does not exceed 20% of estimated value?: yes
+

@@ -23,11 +23,11 @@ logger.addHandler(fh)
 # If 60ms = 1min in sim, 5s irl = 5000ms irl, then simulation ran for 83.3mins
 # If we want to run it for 1000mins in sim, that's 60 000ms irl = 60s irl.
 # if simulation_run_time_secs = 180 irl, the simulation runs for 3000mins in simulation
-init_bias_min_in_sim = 350
-min_in_sim = 2000
+init_bias_min_in_sim = 400
+min_in_sim = 2000 + init_bias_min_in_sim
 
 # How much faster we want to speed up the timing by to make the simulation run faster
-sim_speed_factor = 5000
+sim_speed_factor = 10000
 
 simulation_run_time_secs = (min_in_sim / sim_speed_factor) * 60
 init_bias_time = (init_bias_min_in_sim / sim_speed_factor) * 60
@@ -100,6 +100,7 @@ def calculate_performance(monitor):
     factory_run_time = convert_to_sim_mins(monitor.factory_end_time - monitor.factory_start_time)
     factory_init_time = convert_to_sim_mins(monitor.init_bias - monitor.factory_start_time)
     data_collection_time = factory_run_time - factory_init_time
+    logger.info("Simulation stats:")
     logger.info("Product ones made: %s", monitor.products_made[Type.ONE])
     logger.info("Product twos made: %s", monitor.products_made[Type.TWO])
     logger.info("Product threes made: %s", monitor.products_made[Type.THREE])
@@ -115,9 +116,14 @@ def calculate_performance(monitor):
     c1_block_time_mins = convert_to_sim_mins(sum(monitor.component_block_times[Type.ONE]))
     c2_block_time_mins = convert_to_sim_mins(sum(monitor.component_block_times[Type.TWO]))
     c3_block_time_mins = convert_to_sim_mins(sum(monitor.component_block_times[Type.THREE]))
+    i1_prop_block = c1_block_time_mins / data_collection_time
+    i2_prop_block = (c2_block_time_mins + c3_block_time_mins) / data_collection_time
     logger.info("Inspector one component one's total block time (mins): %s", c1_block_time_mins)
+    logger.info("Inspector one proportion of time blocked: %s %%", i1_prop_block * 100)
     logger.info("Inspector two component two's total block time (mins): %s", c2_block_time_mins)
     logger.info("Inspector two component three's total block time (mins): %s", c3_block_time_mins)
+    logger.info("Inspector two total block time (mins): %s", c2_block_time_mins + c3_block_time_mins)
+    logger.info("Inspector two proportion of time blocked: %s %%", i2_prop_block * 100)
     num_c1_queued_for_w1 = len(monitor.component_queue_times[Type.ONE][Type.ONE])
     num_c1_queued_for_w2 = len(monitor.component_queue_times[Type.TWO][Type.ONE])
     num_c1_queued_for_w3 = len(monitor.component_queue_times[Type.THREE][Type.ONE])
@@ -191,15 +197,7 @@ def calculate_performance(monitor):
     avg_c2_in_sys = (avg_c2_time_blocked + avg_queue_time_w2_c2) * (num_c2_grabbed / data_collection_time)
     avg_c3_in_sys = (avg_c3_time_blocked + avg_queue_time_w3_c3) * (num_c3_grabbed / data_collection_time)
     logger.info("Average number of components in the system: %s", avg_c1_in_sys + avg_c2_in_sys + avg_c3_in_sys)
-    i1_prop_block = c1_block_time_mins / data_collection_time
-    i2_block_time_mins = c2_block_time_mins + c3_block_time_mins
-    i2_prop_block = i2_block_time_mins / data_collection_time
-    logger.info("Inspector one total block time (mins): %s", c1_block_time_mins)
-    logger.info("Inspector one proportion of time blocked: %s %%",
-                i1_prop_block * 100)
-    logger.info("Inspector two total block time (mins): %s", i2_block_time_mins)
-    logger.info("Inspector two proportion of time blocked: %s %%",
-                i2_prop_block * 100)
+    logger.info("")
 
 
 def terminate_threads(monitor):

@@ -117,15 +117,14 @@ class Monitor:
 
     def inspector_end_blocked(self, my_component_type):
         if time.time() > self.init_bias:
-            if len(self.inspector_blocked_start_times[my_component_type]) != 0:
-                self.component_block_times[my_component_type].append(
-                    time.time() - self.inspector_blocked_start_times[my_component_type].pop()
-                )
-            else:
+            if len(self.inspector_blocked_start_times[my_component_type]) == 0:
                 self.component_block_times[my_component_type].append(
                     time.time() - self.init_bias)  # chance to start block before data collection begins
                 self.logger.error("block started before data collection and ended after, added: %s",
                                   time.time() - self.init_bias)
+            else:
+                self.component_block_times[my_component_type].append(
+                    time.time() - self.inspector_blocked_start_times[my_component_type].pop())
 
     # TODO: since we sample the service time, we know what it's going to be so there's no need to calculate it
     def inspector_start_service_time(self, my_component_type):

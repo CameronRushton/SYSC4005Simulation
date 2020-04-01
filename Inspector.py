@@ -64,4 +64,6 @@ class Inspector(Thread):
         self.logger.info("Inspector of types %s is %s", self.types, "WORKING" if self.is_working else "BLOCKED")
 
     def _grab_component(self):
+        self.monitor.total_components += 1
+        self.monitor.sample_components_in_sys()
         return Component(random.choice(self.types))

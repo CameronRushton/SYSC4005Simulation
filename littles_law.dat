@@ -1,0 +1,319 @@
+Trial 1
+Total component 1s placed in a queue: 101
+Is this possible? True
+Total component 2s placed in a queue: 15
+Is this possible? True
+Total component 3s placed in a queue: 12
+Is this possible? True
+Average queue wait times:
+Workstation 1 component 1 queue wait time average (mins): 11.389675978067759
+Workstation 2 component 1 queue wait time average (mins): 41.41108194986979
+Workstation 3 component 1 queue wait time average (mins): 7.236139641867743
+Workstation 2 component 2 queue wait time average (mins): 100.02226564619276
+Workstation 3 component 3 queue wait time average (mins): 297.7368136246999
+Expected average number of components in workstation 1 queue 1: 0.41444083625801986
+Actual average number of components in workstation 1 queue 1: 0.5
+Percent difference: 18.71289215212577
+Expected average number of components in workstation 2 queue 1: 0.3054409691445839
+Actual average number of components in workstation 2 queue 1: 0.32222222222222224
+Percent difference: 5.347215929962468
+Expected average number of components in workstation 2 queue 2: 0.7377469101626841
+Actual average number of components in workstation 2 queue 2: 0.7666666666666667
+Percent difference: 3.8446550801452957
+Expected average number of components in workstation 3 queue 1: 0.042698010310442035
+Actual average number of components in workstation 3 queue 1: 0.044444444444444446
+Percent difference: 4.008227996135215
+Expected average number of components in workstation 3 queue 3: 1.7568441416457052
+Actual average number of components in workstation 3 queue 3: 1.711111111111111
+Percent difference: 2.6374637041950986
+Expected average number of components in the system: 6.218431567151952
+Actual average number of components in the system: 6.812749003984064
+Percent difference: 9.12146729281799
+
+Trial 2
+Total component 1s placed in a queue: 109
+Is this possible? True
+Total component 2s placed in a queue: 17
+Is this possible? True
+Total component 3s placed in a queue: 19
+Is this possible? True
+Average queue wait times:
+Workstation 1 component 1 queue wait time average (mins): 11.608150091257182
+Workstation 2 component 1 queue wait time average (mins): 52.54630026993929
+Workstation 3 component 1 queue wait time average (mins): 4.343128671833114
+Workstation 2 component 2 queue wait time average (mins): 71.17644010805616
+Workstation 3 component 3 queue wait time average (mins): 174.39464100620202
+Expected average number of components in workstation 1 queue 1: 0.42221846873878355
+Actual average number of components in workstation 1 queue 1: 0.5280898876404494
+Percent difference: 22.28148751738777
+Expected average number of components in workstation 2 queue 1: 0.4648974244005065
+Actual average number of components in workstation 2 queue 1: 0.449438202247191
+Percent difference: 3.3815202432819804
+Expected average number of components in workstation 2 queue 2: 0.5947407225650497
+Actual average number of components in workstation 2 queue 2: 0.5955056179775281
+Percent difference: 0.12852724455841508
+Expected average number of components in workstation 3 queue 1: 0.03629059672775976
+Actual average number of components in workstation 3 queue 1: 0.0449438202247191
+Percent difference: 21.304328440053617
+Expected average number of components in workstation 3 queue 3: 1.628655491880669
+Actual average number of components in workstation 3 queue 3: 1.5730337078651686
+Percent difference: 3.4745273851013345
+Expected average number of components in the system: 6.553652064672637
+Actual average number of components in the system: 6.865248226950355
+Percent difference: 4.644138573296324
+
+Trial 3
+Total component 1s placed in a queue: 99
+Is this possible? True
+Total component 2s placed in a queue: 14
+Is this possible? True
+Total component 3s placed in a queue: 16
+Is this possible? True
+Average queue wait times:
+Workstation 1 component 1 queue wait time average (mins): 11.6377049598141
+Workstation 2 component 1 queue wait time average (mins): 84.30000676049126
+Workstation 3 component 1 queue wait time average (mins): 7.20002121395535
+Workstation 2 component 2 queue wait time average (mins): 31.583263760521298
+Workstation 3 component 3 queue wait time average (mins): 240.7395765185356
+Expected average number of components in workstation 1 queue 1: 0.39260191220591817
+Actual average number of components in workstation 1 queue 1: 0.3793103448275862
+Percent difference: 3.443802649128052
+Expected average number of components in workstation 2 queue 1: 0.6182367901766554
+Actual average number of components in workstation 2 queue 1: 0.5977011494252874
+Percent difference: 3.377744880316955
+Expected average number of components in workstation 2 queue 2: 0.2161827414993912
+Actual average number of components in workstation 2 queue 2: 0.20689655172413793
+Percent difference: 4.389810574041507
+Expected average number of components in workstation 3 queue 1: 0.05280329356516462
+Actual average number of components in workstation 3 queue 1: 0.08045977011494253
+Percent difference: 41.50658972716734
+Expected average number of components in workstation 3 queue 3: 1.8832303818991463
+Actual average number of components in workstation 3 queue 3: 1.8505747126436782
+Percent difference: 1.7491898172829756
+Expected average number of components in the system: 7.790321712500759
+Actual average number of components in the system: 6.586065573770492
+Percent difference: 16.753251213262363
+
+Trial 4
+Total component 1s placed in a queue: 109
+Is this possible? True
+Total component 2s placed in a queue: 16
+Is this possible? True
+Total component 3s placed in a queue: 16
+Is this possible? True
+Average queue wait times:
+Workstation 1 component 1 queue wait time average (mins): 11.573858401946378
+Workstation 2 component 1 queue wait time average (mins): 56.22223748101129
+Workstation 3 component 1 queue wait time average (mins): 4.444456100463867
+Workstation 2 component 2 queue wait time average (mins): 45.260414481163025
+Workstation 3 component 3 queue wait time average (mins): 238.9686976869901
+Expected average number of components in workstation 1 queue 1: 0.4508925197326317
+Actual average number of components in workstation 1 queue 1: 0.5434782608695652
+Percent difference: 18.62197541260474
+Expected average number of components in workstation 2 queue 1: 0.41587916059018004
+Actual average number of components in workstation 2 queue 1: 0.42391304347826086
+Percent difference: 1.9133025644105843
+Expected average number of components in workstation 2 queue 2: 0.3571135128633662
+Actual average number of components in workstation 2 queue 2: 0.3804347826086957
+Percent difference: 6.323998004877201
+Expected average number of components in workstation 3 queue 1: 0.03287590026926781
+Actual average number of components in workstation 3 queue 1: 0.03260869565217391
+Percent difference: 0.8160838845656087
+Expected average number of components in workstation 3 queue 3: 1.885509712486219
+Actual average number of components in workstation 3 queue 3: 1.858695652173913
+Percent difference: 1.4322964528277091
+Expected average number of components in the system: 6.881591488706184
+Actual average number of components in the system: 6.759124087591241
+Percent difference: 1.79561549289609
+
+Trial 5
+Total component 1s placed in a queue: 110
+Is this possible? True
+Total component 2s placed in a queue: 14
+Is this possible? True
+Total component 3s placed in a queue: 23
+Is this possible? True
+Average queue wait times:
+Workstation 1 component 1 queue wait time average (mins): 14.193811395146826
+Workstation 2 component 1 queue wait time average (mins): 109.34647535666443
+Workstation 3 component 1 queue wait time average (mins): 5.492754604505456
+Workstation 2 component 2 queue wait time average (mins): 34.6904680842445
+Workstation 3 component 3 queue wait time average (mins): 158.3194715389307
+Expected average number of components in workstation 1 queue 1: 0.516432940197658
+Actual average number of components in workstation 1 queue 1: 0.5106382978723404
+Percent difference: 1.1283817734408494
+Expected average number of components in workstation 2 queue 1: 0.6989262095306429
+Actual average number of components in workstation 2 queue 1: 0.723404255319149
+Percent difference: 3.441963227735708
+Expected average number of components in workstation 2 queue 2: 0.23879288430673126
+Actual average number of components in workstation 2 queue 2: 0.23404255319148937
+Percent difference: 2.0092957246927043
+Expected average number of components in workstation 3 queue 1: 0.062115676368659806
+Actual average number of components in workstation 3 queue 1: 0.06382978723404255
+Percent difference: 2.7219890520073697
+Expected average number of components in workstation 3 queue 3: 1.790380558582207
+Actual average number of components in workstation 3 queue 3: 1.7340425531914894
+Percent difference: 3.197005785288081
+Expected average number of components in the system: 9.599651510794782
+Actual average number of components in the system: 6.85251798561151
+Percent difference: 33.39539537060251
+
+Trial 6
+Total component 1s placed in a queue: 113
+Is this possible? True
+Total component 2s placed in a queue: 19
+Is this possible? True
+Total component 3s placed in a queue: 16
+Is this possible? True
+Average queue wait times:
+Workstation 1 component 1 queue wait time average (mins): 11.502053021403498
+Workstation 2 component 1 queue wait time average (mins): 48.70366387897067
+Workstation 3 component 1 queue wait time average (mins): 23.130953311920166
+Workstation 2 component 2 queue wait time average (mins): 69.80699614474648
+Workstation 3 component 3 queue wait time average (mins): 220.38534035285315
+Expected average number of components in workstation 1 queue 1: 0.45722221709780575
+Actual average number of components in workstation 1 queue 1: 0.4946236559139785
+Percent difference: 7.858717440845532
+Expected average number of components in workstation 2 queue 1: 0.43023038559756493
+Actual average number of components in workstation 2 queue 1: 0.44086021505376344
+Percent difference: 2.4405795328867996
+Expected average number of components in workstation 2 queue 2: 0.6509078248364537
+Actual average number of components in workstation 2 queue 2: 0.6559139784946236
+Percent difference: 0.7661570453460875
+Expected average number of components in workstation 3 queue 1: 0.15892364190162273
+Actual average number of components in workstation 3 queue 1: 0.17204301075268819
+Percent difference: 7.9279098035102775
+Expected average number of components in workstation 3 queue 3: 1.73049212150863
+Actual average number of components in workstation 3 queue 3: 1.7204301075268817
+Percent difference: 0.5831492751177081
+Expected average number of components in the system: 7.577725304378669
+Actual average number of components in the system: 7.041522491349481
+Percent difference: 7.335573218560132
+
+Trial 7
+Total component 1s placed in a queue: 110
+Is this possible? True
+Total component 2s placed in a queue: 16
+Is this possible? True
+Total component 3s placed in a queue: 15
+Is this possible? True
+Average queue wait times:
+Workstation 1 component 1 queue wait time average (mins): 8.861876115566348
+Workstation 2 component 1 queue wait time average (mins): 50.928862321944464
+Workstation 3 component 1 queue wait time average (mins): 5.583524703979492
+Workstation 2 component 2 queue wait time average (mins): 87.24971363941827
+Workstation 3 component 3 queue wait time average (mins): 256.87817732493085
+Expected average number of components in workstation 1 queue 1: 0.3560666013997337
+Actual average number of components in workstation 1 queue 1: 0.3404255319148936
+Percent difference: 4.491384392355945
+Expected average number of components in workstation 2 queue 1: 0.3493684819670875
+Actual average number of components in workstation 2 queue 1: 0.3723404255319149
+Percent difference: 6.3659858777229115
+Expected average number of components in workstation 2 queue 2: 0.6840308757076924
+Actual average number of components in workstation 2 queue 2: 0.6808510638297872
+Percent difference: 0.4659468025465586
+Expected average number of components in workstation 3 queue 1: 0.03830259426420599
+Actual average number of components in workstation 3 queue 1: 0.05319148936170213
+Percent difference: 32.546137427579175
+Expected average number of components in workstation 3 queue 3: 1.8880356155660172
+Actual average number of components in workstation 3 queue 3: 1.8297872340425532
+Percent difference: 3.1334672941502135
+Expected average number of components in the system: 6.84768311256812
+Actual average number of components in the system: 6.989051094890511
+Percent difference: 2.043372087702421
+
+Trial 8
+Total component 1s placed in a queue: 91
+Is this possible? True
+Total component 2s placed in a queue: 10
+Is this possible? True
+Total component 3s placed in a queue: 7
+Is this possible? True
+Average queue wait times:
+Workstation 1 component 1 queue wait time average (mins): 10.075558026631674
+Workstation 2 component 1 queue wait time average (mins): 96.09089475689511
+Workstation 3 component 1 queue wait time average (mins): 11.066706975301106
+Workstation 2 component 2 queue wait time average (mins): 97.79985745747884
+Workstation 3 component 3 queue wait time average (mins): 569.3807545162382
+Expected average number of components in workstation 1 queue 1: 0.37009244556353893
+Actual average number of components in workstation 1 queue 1: 0.36363636363636365
+Percent difference: 1.759800581965793
+Expected average number of components in workstation 2 queue 1: 0.5176721138060534
+Actual average number of components in workstation 2 queue 1: 0.4659090909090909
+Percent difference: 10.525419283902163
+Expected average number of components in workstation 2 queue 2: 0.4789807615159168
+Actual average number of components in workstation 2 queue 2: 0.4772727272727273
+Percent difference: 0.35723461680713653
+Expected average number of components in workstation 3 queue 1: 0.027099935891051138
+Actual average number of components in workstation 3 queue 1: 0.022727272727272728
+Percent difference: 17.55130694666436
+Expected average number of components in workstation 3 queue 3: 1.9520038590699176
+Actual average number of components in workstation 3 queue 3: 1.9318181818181819
+Percent difference: 1.0394748801167994
+Expected average number of components in the system: 8.489455962849652
+Actual average number of components in the system: 6.713636363636364
+Percent difference: 23.36129467713026
+
+Trial 9
+Total component 1s placed in a queue: 114
+Is this possible? True
+Total component 2s placed in a queue: 21
+Is this possible? True
+Total component 3s placed in a queue: 21
+Is this possible? True
+Average queue wait times:
+Workstation 1 component 1 queue wait time average (mins): 12.600883580090706
+Workstation 2 component 1 queue wait time average (mins): 66.92102080897281
+Workstation 3 component 1 queue wait time average (mins): 6.438556470369038
+Workstation 2 component 2 queue wait time average (mins): 27.793611798967635
+Workstation 3 component 3 queue wait time average (mins): 162.43640960208955
+Expected average number of components in workstation 1 queue 1: 0.46979017330153683
+Actual average number of components in workstation 1 queue 1: 0.574468085106383
+Percent difference: 20.04828038696836
+Expected average number of components in workstation 2 queue 1: 0.6237427273162852
+Actual average number of components in workstation 2 queue 1: 0.6276595744680851
+Percent difference: 0.6259932790941543
+Expected average number of components in workstation 2 queue 2: 0.28632127475652
+Actual average number of components in workstation 2 queue 2: 0.2872340425531915
+Percent difference: 0.3182841372486699
+Expected average number of components in workstation 3 queue 1: 0.06001108058814055
+Actual average number of components in workstation 3 queue 1: 0.0851063829787234
+Percent difference: 34.58619214222967
+Expected average number of components in workstation 3 queue 3: 1.6733701326961052
+Actual average number of components in workstation 3 queue 3: 1.6170212765957446
+Percent difference: 3.425054900230726
+Expected average number of components in the system: 7.318939877926398
+Actual average number of components in the system: 6.843205574912892
+Percent difference: 6.718393121970494
+
+Trial 10
+Total component 1s placed in a queue: 99
+Is this possible? True
+Total component 2s placed in a queue: 14
+Is this possible? True
+Total component 3s placed in a queue: 14
+Is this possible? True
+Average queue wait times:
+Workstation 1 component 1 queue wait time average (mins): 11.009007960826427
+Workstation 2 component 1 queue wait time average (mins): 56.17942259861872
+Workstation 3 component 1 queue wait time average (mins): 6.625056266784668
+Workstation 2 component 2 queue wait time average (mins): 77.36896617071969
+Workstation 3 component 3 queue wait time average (mins): 286.74999872843426
+Expected average number of components in workstation 1 queue 1: 0.39954225344084077
+Actual average number of components in workstation 1 queue 1: 0.4731182795698925
+Percent difference: 16.86246217076183
+Expected average number of components in workstation 2 queue 1: 0.3581817325400519
+Actual average number of components in workstation 2 queue 1: 0.3978494623655914
+Percent difference: 10.493675417848387
+Expected average number of components in workstation 2 queue 2: 0.5312239400179809
+Actual average number of components in workstation 2 queue 2: 0.5376344086021505
+Percent difference: 1.199498248284322
+Expected average number of components in workstation 3 queue 1: 0.03899003511987413
+Actual average number of components in workstation 3 queue 1: 0.043010752688172046
+Percent difference: 9.806533999916986
+Expected average number of components in workstation 3 queue 3: 1.9688574329473025
+Actual average number of components in workstation 3 queue 3: 1.946236559139785
+Percent difference: 1.1555724512993688
+Expected average number of components in the system: 6.888442909088607
+Actual average number of components in the system: 6.92741935483871
+Percent difference: 0.5642274800591982

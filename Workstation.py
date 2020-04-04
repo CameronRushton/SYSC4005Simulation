@@ -60,11 +60,19 @@ class Buffer(queue.Queue):
     def __init__(self, buffer_type):
         super().__init__(maxsize=2)
         self.type = buffer_type
+        self.sizes = [0]
+        self.zero = time.time()  # time.time() is our zero
+        self.size_timestamps = [0.0]
 
     def add(self, component):
         if component.type == self.type:
             self.put(component)
+            self.sizes.append(self.qsize())
+            self.size_timestamps.append(time.time() - self.zero)
             component.queue_arrival_time = time.time()
 
     def pop(self):
-        return self.get()
+        value = self.get()
+        self.sizes.append(self.qsize())
+        self.size_timestamps.append(time.time() - self.zero)
+        return value

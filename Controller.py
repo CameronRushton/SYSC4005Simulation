@@ -1,7 +1,6 @@
 import logging
 import threading
 import time
-
 from Inspector import Inspector
 from Sampler import Sampler
 
@@ -86,7 +85,7 @@ inspector_two = Inspector(known_workstations=workstations, seed=seed, my_types=[
                               Type.TWO: find_mean(component2_service_times),
                               Type.THREE: find_mean(component3_service_times)
                           })
-queue_sampler = Sampler(known_workstations=workstations, known_inspectors=[inspector_one, inspector_two])
+# queue_sampler = Sampler(known_workstations=workstations, known_inspectors=[inspector_one, inspector_two])
 
 
 def _convert_to_mins(seconds):
@@ -103,6 +102,30 @@ def avg(lst):
 
 # Calculate the throughput of the factory and other metrics using the monitor object
 def calculate_performance(monitor):
+    num_components_in_queue_samples = {
+        Type.ONE: {  # Workstation type
+            Type.ONE: []  # Queue / component type
+        },
+        Type.TWO: {
+            Type.ONE: [],
+            Type.TWO: []
+        },
+        Type.THREE: {
+            Type.ONE: [],
+            Type.THREE: []
+        },
+    }
+
+    for workstation in workstations:
+        for buffer in workstation.buffers:
+            num_components_in_queue_samples[workstation.type][buffer.type] = buffer.sizes
+            f1 = open(str(workstation.type) + str(buffer.type) + "-buffer-sizes.txt", "w+")
+            for sample in buffer.sizes:
+                f1.write(str(sample) + "\n")
+            f2 = open(str(workstation.type) + str(buffer.type) + "-buffer-size-times.txt", "w+")
+            for sample in buffer.size_timestamps:
+                f2.write(str(sample) + "\n")
+
     factory_run_time = convert_to_sim_mins(monitor.factory_end_time - monitor.factory_start_time)
     factory_init_time = convert_to_sim_mins(monitor.init_bias - monitor.factory_start_time)
     data_collection_time = factory_run_time - factory_init_time
@@ -139,16 +162,17 @@ def calculate_performance(monitor):
 
     logger.info("Total component 1s placed in a queue: %s", total_c1_queued)
     # 0 <= Total placed in queue - Total products made <= total capacity in system (num slots in c1 queues and workstations with c1 queues and inspectors that have a component)?
+    num_possible_spaces_in_sys_for_c1 = 2 + 2 + 2 + 1 + 1 + 1 + 1  # 2 for each queue (6), one in inspector's hands (1), one for each workstation (3)
     is_possible = 0 <= (total_c1_queued - monitor.products_made[Type.ONE] - monitor.products_made[Type.TWO] -
-                        monitor.products_made[Type.THREE]) <= 10  # TODO: Hard coded magic number
+                        monitor.products_made[Type.THREE]) <= num_possible_spaces_in_sys_for_c1
     logger.info("Is this possible? %s", is_possible)
-
+    num_possible_spaces_in_sys_for_c2 = 4  # 2 for each queue (2), one in inspector's hands (1), one for each workstation that deals with component 2 (1)
     logger.info("Total component 2s placed in a queue: %s", total_c2_queued)
-    is_possible = 0 <= (total_c2_queued - monitor.products_made[Type.TWO]) <= 4  # TODO: Hard coded magic number
+    is_possible = 0 <= (total_c2_queued - monitor.products_made[Type.TWO]) <= num_possible_spaces_in_sys_for_c2
     logger.info("Is this possible? %s", is_possible)
-
+    num_possible_spaces_in_sys_for_c3 = 4  # 2 for each queue (2), one in inspector's hands (1), one for each workstation that deals with component 3 (1)
     logger.info("Total component 3s placed in a queue: %s", total_c3_queued)
-    is_possible = 0 <= (total_c3_queued - monitor.products_made[Type.THREE]) <= 4  # TODO: Hard coded magic number
+    is_possible = 0 <= (total_c3_queued - monitor.products_made[Type.THREE]) <= num_possible_spaces_in_sys_for_c3
     logger.info("Is this possible? %s", is_possible)
 
     avg_queue_time_w1_c1 = convert_to_sim_mins(
@@ -175,11 +199,12 @@ def calculate_performance(monitor):
     avg_c2_in_w2 = (total_c2_queued / data_collection_time) * avg_queue_time_w2_c2
     avg_c3_in_w3 = (total_c3_queued / data_collection_time) * avg_queue_time_w3_c3
     # Actual values for L
-    actual_avg_c1_in_w1 = avg(queue_sampler.num_components_in_queue_samples[Type.ONE][Type.ONE])
-    actual_avg_c1_in_w2 = avg(queue_sampler.num_components_in_queue_samples[Type.TWO][Type.ONE])
-    actual_avg_c2_in_w2 = avg(queue_sampler.num_components_in_queue_samples[Type.TWO][Type.TWO])
-    actual_avg_c1_in_w3 = avg(queue_sampler.num_components_in_queue_samples[Type.THREE][Type.ONE])
-    actual_avg_c3_in_w3 = avg(queue_sampler.num_components_in_queue_samples[Type.THREE][Type.THREE])
+    # TODO: This is incorrect because it also counts values when it's not in steady state
+    actual_avg_c1_in_w1 = avg(num_components_in_queue_samples[Type.ONE][Type.ONE])
+    actual_avg_c1_in_w2 = avg(num_components_in_queue_samples[Type.TWO][Type.ONE])
+    actual_avg_c2_in_w2 = avg(num_components_in_queue_samples[Type.TWO][Type.TWO])
+    actual_avg_c1_in_w3 = avg(num_components_in_queue_samples[Type.THREE][Type.ONE])
+    actual_avg_c3_in_w3 = avg(num_components_in_queue_samples[Type.THREE][Type.THREE])
     logger.info("Expected average number of components in workstation 1 queue 1: %s", avg_c1_in_w1)
     logger.info("Actual average number of components in workstation 1 queue 1: %s", actual_avg_c1_in_w1)
     logger.info("Percent difference: %s",
@@ -278,7 +303,7 @@ def run(init_bias):
         workstation.start()
     inspector_one.start()
     inspector_two.start()
-    queue_sampler.start()
+    # queue_sampler.start()
 
     # Start the timer for how long this simulation will go on
     threading.Timer(simulation_run_time_secs, terminate_threads, args=[monitor]).start()

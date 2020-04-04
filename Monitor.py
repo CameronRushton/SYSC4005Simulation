@@ -30,6 +30,7 @@ class Monitor:
             self.init_bias = 0
             # Tells the threads to run or not
             self.run_simulation = True
+            self.total_components = 0
 
             # TODO: don't need this here anymore
             self.model_variables = {
@@ -96,6 +97,12 @@ class Monitor:
                 Type.THREE: 0,
             }
 
+            self.biased_products_made = {
+                Type.ONE: 0,
+                Type.TWO: 0,
+                Type.THREE: 0,
+            }
+
             # This dictionary should end up looking like the following:
             # self.component_queue_times = {
             #       workstation TYPE.ONE: {
@@ -108,6 +115,7 @@ class Monitor:
             #      etc...
             # }
             self.component_queue_times = {}
+            self.avg_components_in_system = []
 
             Monitor.__instance = self
 
@@ -200,6 +208,12 @@ class Monitor:
     def add_product(self, my_product_type):
         if time.time() > self.init_bias:
             self.products_made[my_product_type] += 1
+            self.sample_components_in_sys()
+        self.biased_products_made[my_product_type] += 1
+
+    def sample_components_in_sys(self):
+        avg = self.total_components - self.biased_products_made[Type.ONE] - 2 * self.biased_products_made[Type.TWO] - 2 * self.biased_products_made[Type.THREE]
+        self.avg_components_in_system.append(avg)
 
     def sample_service_time(self, mean):
         return self.convert_st_mins_to_sim_speed(np.random.exponential(mean, 1)[0])

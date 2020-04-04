@@ -13,6 +13,7 @@ class Workstation(Thread):
         self.buffers = my_buffers
         self.type = my_type
         self.mean_st = mean_st
+        self.isMakingProduct = False
         self.logger = logging.getLogger(__name__)
         self.monitor = Monitor.get_instance()
         self.logger.info("Initialized monitor %s in workstation.", self.monitor)
@@ -27,6 +28,7 @@ class Workstation(Thread):
             if self._has_all_components():
                 self._make_product()
                 self.logger.info("Made product %s", self.type.name)
+                self.isMakingProduct = False
                 self.monitor.add_product(self.type)
         # Simulation has stopped
         self._empty_buffers()
@@ -39,6 +41,7 @@ class Workstation(Thread):
 
     def _make_product(self):
         self.logger.info("Making product %s", self.type.name)
+        self.isMakingProduct = True
         for buffer in self.buffers:
             self.monitor.add_component_queue_time(buffer.pop().queue_arrival_time, self.type, buffer.type)
         # This block needs to match the desired service time - code before is considered negligible

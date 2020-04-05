@@ -116,6 +116,7 @@ class Monitor:
             # }
             self.component_queue_times = {}
             self.avg_components_in_system = []
+            self.all_components_made = []
 
             Monitor.__instance = self
 

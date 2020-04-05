@@ -46,6 +46,7 @@ workstation1_service_times = open('ws1.dat').read().splitlines()
 workstation2_service_times = open('ws2.dat').read().splitlines()
 workstation3_service_times = open('ws3.dat').read().splitlines()
 
+generate_milestone3_data = False
 
 # Sanity check for exponential distribution sampling
 # samples = []
@@ -85,7 +86,7 @@ inspector_two = Inspector(known_workstations=workstations, seed=seed, my_types=[
                               Type.TWO: find_mean(component2_service_times),
                               Type.THREE: find_mean(component3_service_times)
                           })
-# queue_sampler = Sampler(known_workstations=workstations, known_inspectors=[inspector_one, inspector_two])
+queue_sampler = Sampler(known_workstations=workstations, known_inspectors=[inspector_one, inspector_two])
 
 
 def _convert_to_mins(seconds):
@@ -102,29 +103,30 @@ def avg(lst):
 
 # Calculate the throughput of the factory and other metrics using the monitor object
 def calculate_performance(monitor):
-    num_components_in_queue_samples = {
-        Type.ONE: {  # Workstation type
-            Type.ONE: []  # Queue / component type
-        },
-        Type.TWO: {
-            Type.ONE: [],
-            Type.TWO: []
-        },
-        Type.THREE: {
-            Type.ONE: [],
-            Type.THREE: []
-        },
-    }
+    if generate_milestone3_data:
+        num_components_in_queue_samples = {
+            Type.ONE: {  # Workstation type
+                Type.ONE: []  # Queue / component type
+            },
+            Type.TWO: {
+                Type.ONE: [],
+                Type.TWO: []
+            },
+            Type.THREE: {
+                Type.ONE: [],
+                Type.THREE: []
+            },
+        }
 
-    for workstation in workstations:
-        for buffer in workstation.buffers:
-            num_components_in_queue_samples[workstation.type][buffer.type] = buffer.sizes
-            f1 = open(str(workstation.type) + str(buffer.type) + "-buffer-sizes.txt", "w+")
-            for sample in buffer.sizes:
-                f1.write(str(sample) + "\n")
-            f2 = open(str(workstation.type) + str(buffer.type) + "-buffer-size-times.txt", "w+")
-            for sample in buffer.size_timestamps:
-                f2.write(str(sample) + "\n")
+        for workstation in workstations:
+            for buffer in workstation.buffers:
+                num_components_in_queue_samples[workstation.type][buffer.type] = buffer.sizes
+                f1 = open(str(workstation.type) + str(buffer.type) + "-buffer-sizes.txt", "w+")
+                f2 = open(str(workstation.type) + str(buffer.type) + "-buffer-size-times.txt", "w+")
+                for sample in buffer.sizes:
+                    f1.write(str(sample) + "\n")
+                for sample in buffer.size_timestamps:
+                    f2.write(str(sample) + "\n")
 
     factory_run_time = convert_to_sim_mins(monitor.factory_end_time - monitor.factory_start_time)
     factory_init_time = convert_to_sim_mins(monitor.init_bias - monitor.factory_start_time)
@@ -193,18 +195,17 @@ def calculate_performance(monitor):
 
     # Apply Little's law
     #  Expected values:  L  =  throughput  *   W
-    avg_c1_in_w1 = (num_c1_queued_for_w1 / data_collection_time) * avg_queue_time_w1_c1
-    avg_c1_in_w2 = (num_c1_queued_for_w2 / data_collection_time) * avg_queue_time_w2_c1
-    avg_c1_in_w3 = (num_c1_queued_for_w3 / data_collection_time) * avg_queue_time_w3_c1
-    avg_c2_in_w2 = (total_c2_queued / data_collection_time) * avg_queue_time_w2_c2
-    avg_c3_in_w3 = (total_c3_queued / data_collection_time) * avg_queue_time_w3_c3
+    avg_c1_in_w1 = round((num_c1_queued_for_w1 / data_collection_time) * avg_queue_time_w1_c1, 2)
+    avg_c1_in_w2 = round((num_c1_queued_for_w2 / data_collection_time) * avg_queue_time_w2_c1, 2)
+    avg_c1_in_w3 = round((num_c1_queued_for_w3 / data_collection_time) * avg_queue_time_w3_c1, 2)
+    avg_c2_in_w2 = round((total_c2_queued / data_collection_time) * avg_queue_time_w2_c2, 2)
+    avg_c3_in_w3 = round((total_c3_queued / data_collection_time) * avg_queue_time_w3_c3, 2)
     # Actual values for L
-    # TODO: This is incorrect because it also counts values when it's not in steady state
-    actual_avg_c1_in_w1 = avg(num_components_in_queue_samples[Type.ONE][Type.ONE])
-    actual_avg_c1_in_w2 = avg(num_components_in_queue_samples[Type.TWO][Type.ONE])
-    actual_avg_c2_in_w2 = avg(num_components_in_queue_samples[Type.TWO][Type.TWO])
-    actual_avg_c1_in_w3 = avg(num_components_in_queue_samples[Type.THREE][Type.ONE])
-    actual_avg_c3_in_w3 = avg(num_components_in_queue_samples[Type.THREE][Type.THREE])
+    actual_avg_c1_in_w1 = round(avg(queue_sampler.num_components_in_queue_samples[Type.ONE][Type.ONE]), 2)
+    actual_avg_c1_in_w2 = round(avg(queue_sampler.num_components_in_queue_samples[Type.TWO][Type.ONE]), 2)
+    actual_avg_c2_in_w2 = round(avg(queue_sampler.num_components_in_queue_samples[Type.TWO][Type.TWO]), 2)
+    actual_avg_c1_in_w3 = round(avg(queue_sampler.num_components_in_queue_samples[Type.THREE][Type.ONE]), 2)
+    actual_avg_c3_in_w3 = round(avg(queue_sampler.num_components_in_queue_samples[Type.THREE][Type.THREE]), 2)
     logger.info("Expected average number of components in workstation 1 queue 1: %s", avg_c1_in_w1)
     logger.info("Actual average number of components in workstation 1 queue 1: %s", actual_avg_c1_in_w1)
     logger.info("Percent difference: %s",
@@ -246,15 +247,31 @@ def calculate_performance(monitor):
     num_c1_grabbed = total_c1_queued + currently_held_components[Type.ONE]
     num_c2_grabbed = total_c2_queued + currently_held_components[Type.TWO]
     num_c3_grabbed = total_c3_queued + currently_held_components[Type.THREE]
-    avg_c1_time_blocked = (c1_block_time_mins / num_c1_grabbed)
-    avg_c2_time_blocked = (c2_block_time_mins / num_c2_grabbed)
-    avg_c3_time_blocked = (c3_block_time_mins / num_c3_grabbed)
-    avg_c1_in_sys = (avg_c1_time_blocked + avg_queue_time_w1_c1 + avg_queue_time_w2_c1 + avg_queue_time_w3_c1) * (
-            num_c1_grabbed / data_collection_time)
-    avg_c2_in_sys = (avg_c2_time_blocked + avg_queue_time_w2_c2) * (num_c2_grabbed / data_collection_time)
-    avg_c3_in_sys = (avg_c3_time_blocked + avg_queue_time_w3_c3) * (num_c3_grabbed / data_collection_time)
-    exp_avg_components_in_sys = avg_c1_in_sys + avg_c2_in_sys + avg_c3_in_sys
-    logger.info("Expected average number of components in the system: %s", avg_c1_in_sys + avg_c2_in_sys + avg_c3_in_sys)
+    # avg_c1_time_blocked = (c1_block_time_mins / num_c1_grabbed)
+    # avg_c2_time_blocked = (c2_block_time_mins / num_c2_grabbed)
+    # avg_c3_time_blocked = (c3_block_time_mins / num_c3_grabbed)
+
+    total_service_times = {
+        Type.ONE: [],
+        Type.TWO: [],
+        Type.THREE: []
+    }
+    for component in monitor.all_components_made:
+        st = component.get_time_in_sys()
+        if st:
+            total_service_times[component.type].append(st)
+    avg_c1_time_in_sys = convert_to_sim_mins(avg(total_service_times[Type.ONE]))
+    avg_c2_time_in_sys = convert_to_sim_mins(avg(total_service_times[Type.TWO]))
+    avg_c3_time_in_sys = convert_to_sim_mins(avg(total_service_times[Type.THREE]))
+
+    avg_c1_throughput_in_sys = num_c1_grabbed / data_collection_time
+    avg_c2_throughput_in_sys = num_c2_grabbed / data_collection_time
+    avg_c3_throughput_in_sys = num_c3_grabbed / data_collection_time
+
+    # exp_avg_components_in_sys = avg_component_time_in_sys * avg_throughput_in_sys
+    exp_avg_components_in_sys = avg_c1_time_in_sys * avg_c1_throughput_in_sys + avg_c2_time_in_sys * avg_c2_throughput_in_sys + avg_c3_time_in_sys * avg_c3_throughput_in_sys
+
+    logger.info("Expected average number of components in the system: %s", exp_avg_components_in_sys)
     logger.info("Actual average number of components in the system: %s", avg(monitor.avg_components_in_system))
     logger.info("Percent difference: %s",
                 abs(exp_avg_components_in_sys - avg(monitor.avg_components_in_system)) / ((exp_avg_components_in_sys + avg(monitor.avg_components_in_system)) / 2) * 100)
@@ -303,7 +320,7 @@ def run(init_bias):
         workstation.start()
     inspector_one.start()
     inspector_two.start()
-    # queue_sampler.start()
+    queue_sampler.start()
 
     # Start the timer for how long this simulation will go on
     threading.Timer(simulation_run_time_secs, terminate_threads, args=[monitor]).start()

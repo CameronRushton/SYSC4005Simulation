@@ -33,8 +33,8 @@ w3_c1_avg = open('w3_c1_avg.dat').read().splitlines()
 w3_c3_avg = open('w3_c3_avg.dat').read().splitlines()
 
 # Target Precision
-throughput_precision = 0.1
-proportion_blocked_precision = 5
+throughput_precision = 0.05
+proportion_blocked_precision = 2
 
 #################
 # Program start #

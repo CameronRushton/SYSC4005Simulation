@@ -76,6 +76,7 @@ w2_c1_times, dupe_w2_c1_times, dupe_w2_c1_sizes, w2_c1_running_avgs = generate_d
 w2_c2_times, dupe_w2_c2_times, dupe_w2_c2_sizes, w2_c2_running_avgs = generate_data("Type.TWOType.TWO-buffer-sizes.txt", "Type.TWOType.TWO-buffer-size-times.txt")
 w3_c1_times, dupe_w3_c1_times, dupe_w3_c1_sizes, w3_c1_running_avgs = generate_data("Type.THREEType.ONE-buffer-sizes.txt", "Type.THREEType.ONE-buffer-size-times.txt")
 w3_c3_times, dupe_w3_c3_times, dupe_w3_c3_sizes, w3_c3_running_avgs = generate_data("Type.THREEType.THREE-buffer-sizes.txt", "Type.THREEType.THREE-buffer-size-times.txt")
+sys_times, dupe_sys_times, dupe_sys_sizes, sys_running_avgs = generate_data("system-component-sizes.txt", "system-component-size-times.txt")
 
 plt.figure(1, figsize=(20, 10))
 plt.ylim(ymax=2.1, ymin=0.0)
@@ -144,6 +145,20 @@ plt.figure(10, figsize=(20, 10))
 plt.ylim(ymax=2.1, ymin=0.0)
 plt.title("Average Components in Workstation 3 Queue/Component 3 vs Time")
 plt.plot(w3_c3_times, w3_c3_running_avgs)
+plt.ylabel("Average Components in Queue")
+plt.xlabel("Time in Minutes")
+
+plt.figure(11, figsize=(20, 10))
+plt.ylim(ymax=12.1, ymin=0.0)
+plt.title("Components in System vs Time")
+plt.plot(dupe_sys_times, dupe_sys_sizes)
+plt.ylabel("Components in System")
+plt.xlabel("Time in Minutes")
+
+plt.figure(12, figsize=(20, 10))
+plt.ylim(ymax=8.1, ymin=0.0)
+plt.title("Average Components in System vs Time")
+plt.plot(sys_times, sys_running_avgs)
 plt.ylabel("Average Components in Queue")
 plt.xlabel("Time in Minutes")
 

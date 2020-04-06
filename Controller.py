@@ -24,7 +24,7 @@ logger.addHandler(fh)
 # If we want to run it for 1000mins in sim, that's 60 000ms irl = 60s irl.
 # if simulation_run_time_secs = 180 irl, the simulation runs for 3000mins in simulation
 init_bias_min_in_sim = 400
-min_in_sim = 2000 + init_bias_min_in_sim
+min_in_sim = 4000 + init_bias_min_in_sim
 
 # How much faster we want to speed up the timing by to make the simulation run faster
 sim_speed_factor = 10000
@@ -271,10 +271,16 @@ def calculate_performance(monitor):
     # exp_avg_components_in_sys = avg_component_time_in_sys * avg_throughput_in_sys
     exp_avg_components_in_sys = avg_c1_time_in_sys * avg_c1_throughput_in_sys + avg_c2_time_in_sys * avg_c2_throughput_in_sys + avg_c3_time_in_sys * avg_c3_throughput_in_sys
 
+    f3 = open("system-component-size-times.txt", "w+")
+    f4 = open("system-component-sizes.txt", "w+")
+    for index in range(len(monitor.avg_components_in_system["time"])):
+        f3.write(str(monitor.avg_components_in_system["time"][index]) + "\n")
+        f4.write(str(monitor.avg_components_in_system["data"][index]) + "\n")
+
     logger.info("Expected average number of components in the system: %s", exp_avg_components_in_sys)
-    logger.info("Actual average number of components in the system: %s", avg(monitor.avg_components_in_system))
+    logger.info("Actual average number of components in the system: %s", avg(monitor.avg_components_in_system["data"]))
     logger.info("Percent difference: %s",
-                abs(exp_avg_components_in_sys - avg(monitor.avg_components_in_system)) / ((exp_avg_components_in_sys + avg(monitor.avg_components_in_system)) / 2) * 100)
+                abs(exp_avg_components_in_sys - avg(monitor.avg_components_in_system["data"])) / ((exp_avg_components_in_sys + avg(monitor.avg_components_in_system["data"])) / 2) * 100)
 
     logger.info("")
     prod1_made = monitor.products_made[Type.ONE]

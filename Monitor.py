@@ -115,7 +115,10 @@ class Monitor:
             #      etc...
             # }
             self.component_queue_times = {}
-            self.avg_components_in_system = []
+            self.avg_components_in_system = {
+                "data": [],
+                "time": []
+            }
             self.all_components_made = []
 
             Monitor.__instance = self
@@ -214,7 +217,8 @@ class Monitor:
 
     def sample_components_in_sys(self):
         avg = self.total_components - self.biased_products_made[Type.ONE] - 2 * self.biased_products_made[Type.TWO] - 2 * self.biased_products_made[Type.THREE]
-        self.avg_components_in_system.append(avg)
+        self.avg_components_in_system["data"].append(avg)
+        self.avg_components_in_system["time"].append(time.time() - self.factory_start_time)
 
     def sample_service_time(self, mean):
         return self.convert_st_mins_to_sim_speed(np.random.exponential(mean, 1)[0])

@@ -5,6 +5,8 @@ from threading import Thread
 from Monitor import Monitor
 import time
 from Type import Type
+
+
 class Sampler(Thread):
     def __init__(self, known_workstations, known_inspectors, *args, **kwargs):
         super(Sampler, self).__init__(*args, **kwargs)

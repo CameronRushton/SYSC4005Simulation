@@ -42,13 +42,18 @@ class Workstation(Thread):
     def _make_product(self):
         self.logger.info("Making product %s", self.type.name)
         self.isMakingProduct = True
+        components = []
         for buffer in self.buffers:
-            self.monitor.add_component_queue_time(buffer.pop().queue_arrival_time, self.type, buffer.type)
+            comp = buffer.pop()
+            components.append(comp)
+            self.monitor.add_component_queue_time(comp.queue_arrival_time, self.type, buffer.type)
         # This block needs to match the desired service time - code before is considered negligible
         # This means that the workstation can be assembling a product while its buffer(s) is/are full, meaning we can
         # ...potentially make 3 products in a row without filling the queue in that time. Finish the one it currently
         # ...has and then pull the next two from the queue.
         time.sleep(self.monitor.sample_service_time(self.mean_st))
+        for component in components:
+            component.destruction_time = time.time()
 
     def _empty_buffers(self):
         for buffer in self.buffers:
@@ -60,11 +65,19 @@ class Buffer(queue.Queue):
     def __init__(self, buffer_type):
         super().__init__(maxsize=2)
         self.type = buffer_type
+        self.sizes = [0]
+        self.zero = time.time()  # time.time() is our zero
+        self.size_timestamps = [0.0]
 
     def add(self, component):
         if component.type == self.type:
             self.put(component)
+            self.sizes.append(self.qsize())
+            self.size_timestamps.append(time.time() - self.zero)
             component.queue_arrival_time = time.time()
 
     def pop(self):
-        return self.get()
+        value = self.get()
+        self.sizes.append(self.qsize())
+        self.size_timestamps.append(time.time() - self.zero)
+        return value

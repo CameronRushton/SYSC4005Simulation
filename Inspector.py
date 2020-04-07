@@ -66,4 +66,6 @@ class Inspector(Thread):
     def _grab_component(self):
         self.monitor.total_components += 1
         self.monitor.sample_components_in_sys()
-        return Component(random.choice(self.types))
+        component = Component(random.choice(self.types))
+        self.monitor.all_components_made.append(component)
+        return component

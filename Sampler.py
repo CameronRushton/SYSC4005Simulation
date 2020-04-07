@@ -28,7 +28,6 @@ class Sampler(Thread):
                 Type.THREE: []
             },
         }
-
     def run(self):
         self.logger.info("Started queue sampler thread.")
         @atexit.register
@@ -38,7 +37,11 @@ class Sampler(Thread):
             if time.time() > self.monitor.init_bias:
                 time.sleep(0.1)  # Take a sample of the queues every x seconds
                 self._sample_queues_and_workstations()
+                self.monitor.sample_components_in_sys()
 
+    # TODO: The original idea here is to take responsibility of reporting queue size off of a component and put it on something like this
+    # sampler that has it's own thread. This works and is accurate enough, but it would be more accurate if we had the component
+    # report it's state every time ANY state changed (requires a big rewrite).
     def _sample_queues_and_workstations(self):
         for workstation in self.workstations:
             for buffer in workstation.buffers:

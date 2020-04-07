@@ -1,7 +1,6 @@
 import logging
 import threading
 import time
-
 from Inspector import Inspector
 from Sampler import Sampler
 
@@ -25,7 +24,7 @@ logger.addHandler(fh)
 # If we want to run it for 1000mins in sim, that's 60 000ms irl = 60s irl.
 # if simulation_run_time_secs = 180 irl, the simulation runs for 3000mins in simulation
 init_bias_min_in_sim = 400
-min_in_sim = 2000 + init_bias_min_in_sim
+min_in_sim = 4000 + init_bias_min_in_sim
 
 # How much faster we want to speed up the timing by to make the simulation run faster
 sim_speed_factor = 10000
@@ -47,6 +46,7 @@ workstation1_service_times = open('ws1.dat').read().splitlines()
 workstation2_service_times = open('ws2.dat').read().splitlines()
 workstation3_service_times = open('ws3.dat').read().splitlines()
 
+generate_milestone3_data = False
 
 # Sanity check for exponential distribution sampling
 # samples = []
@@ -103,6 +103,31 @@ def avg(lst):
 
 # Calculate the throughput of the factory and other metrics using the monitor object
 def calculate_performance(monitor):
+    if generate_milestone3_data:
+        num_components_in_queue_samples = {
+            Type.ONE: {  # Workstation type
+                Type.ONE: []  # Queue / component type
+            },
+            Type.TWO: {
+                Type.ONE: [],
+                Type.TWO: []
+            },
+            Type.THREE: {
+                Type.ONE: [],
+                Type.THREE: []
+            },
+        }
+
+        for workstation in workstations:
+            for buffer in workstation.buffers:
+                num_components_in_queue_samples[workstation.type][buffer.type] = buffer.sizes
+                f1 = open(str(workstation.type) + str(buffer.type) + "-buffer-sizes.txt", "w+")
+                f2 = open(str(workstation.type) + str(buffer.type) + "-buffer-size-times.txt", "w+")
+                for sample in buffer.sizes:
+                    f1.write(str(sample) + "\n")
+                for sample in buffer.size_timestamps:
+                    f2.write(str(sample) + "\n")
+
     factory_run_time = convert_to_sim_mins(monitor.factory_end_time - monitor.factory_start_time)
     factory_init_time = convert_to_sim_mins(monitor.init_bias - monitor.factory_start_time)
     data_collection_time = factory_run_time - factory_init_time
@@ -139,16 +164,17 @@ def calculate_performance(monitor):
 
     logger.info("Total component 1s placed in a queue: %s", total_c1_queued)
     # 0 <= Total placed in queue - Total products made <= total capacity in system (num slots in c1 queues and workstations with c1 queues and inspectors that have a component)?
+    num_possible_spaces_in_sys_for_c1 = 2 + 2 + 2 + 1 + 1 + 1 + 1  # 2 for each queue (6), one in inspector's hands (1), one for each workstation (3)
     is_possible = 0 <= (total_c1_queued - monitor.products_made[Type.ONE] - monitor.products_made[Type.TWO] -
-                        monitor.products_made[Type.THREE]) <= 10  # TODO: Hard coded magic number
+                        monitor.products_made[Type.THREE]) <= num_possible_spaces_in_sys_for_c1
     logger.info("Is this possible? %s", is_possible)
-
+    num_possible_spaces_in_sys_for_c2 = 4  # 2 for each queue (2), one in inspector's hands (1), one for each workstation that deals with component 2 (1)
     logger.info("Total component 2s placed in a queue: %s", total_c2_queued)
-    is_possible = 0 <= (total_c2_queued - monitor.products_made[Type.TWO]) <= 4  # TODO: Hard coded magic number
+    is_possible = 0 <= (total_c2_queued - monitor.products_made[Type.TWO]) <= num_possible_spaces_in_sys_for_c2
     logger.info("Is this possible? %s", is_possible)
-
+    num_possible_spaces_in_sys_for_c3 = 4  # 2 for each queue (2), one in inspector's hands (1), one for each workstation that deals with component 3 (1)
     logger.info("Total component 3s placed in a queue: %s", total_c3_queued)
-    is_possible = 0 <= (total_c3_queued - monitor.products_made[Type.THREE]) <= 4  # TODO: Hard coded magic number
+    is_possible = 0 <= (total_c3_queued - monitor.products_made[Type.THREE]) <= num_possible_spaces_in_sys_for_c3
     logger.info("Is this possible? %s", is_possible)
 
     avg_queue_time_w1_c1 = convert_to_sim_mins(
@@ -169,17 +195,17 @@ def calculate_performance(monitor):
 
     # Apply Little's law
     #  Expected values:  L  =  throughput  *   W
-    avg_c1_in_w1 = (num_c1_queued_for_w1 / data_collection_time) * avg_queue_time_w1_c1
-    avg_c1_in_w2 = (num_c1_queued_for_w2 / data_collection_time) * avg_queue_time_w2_c1
-    avg_c1_in_w3 = (num_c1_queued_for_w3 / data_collection_time) * avg_queue_time_w3_c1
-    avg_c2_in_w2 = (total_c2_queued / data_collection_time) * avg_queue_time_w2_c2
-    avg_c3_in_w3 = (total_c3_queued / data_collection_time) * avg_queue_time_w3_c3
+    avg_c1_in_w1 = round((num_c1_queued_for_w1 / data_collection_time) * avg_queue_time_w1_c1, 2)
+    avg_c1_in_w2 = round((num_c1_queued_for_w2 / data_collection_time) * avg_queue_time_w2_c1, 2)
+    avg_c1_in_w3 = round((num_c1_queued_for_w3 / data_collection_time) * avg_queue_time_w3_c1, 2)
+    avg_c2_in_w2 = round((total_c2_queued / data_collection_time) * avg_queue_time_w2_c2, 2)
+    avg_c3_in_w3 = round((total_c3_queued / data_collection_time) * avg_queue_time_w3_c3, 2)
     # Actual values for L
-    actual_avg_c1_in_w1 = avg(queue_sampler.num_components_in_queue_samples[Type.ONE][Type.ONE])
-    actual_avg_c1_in_w2 = avg(queue_sampler.num_components_in_queue_samples[Type.TWO][Type.ONE])
-    actual_avg_c2_in_w2 = avg(queue_sampler.num_components_in_queue_samples[Type.TWO][Type.TWO])
-    actual_avg_c1_in_w3 = avg(queue_sampler.num_components_in_queue_samples[Type.THREE][Type.ONE])
-    actual_avg_c3_in_w3 = avg(queue_sampler.num_components_in_queue_samples[Type.THREE][Type.THREE])
+    actual_avg_c1_in_w1 = round(avg(queue_sampler.num_components_in_queue_samples[Type.ONE][Type.ONE]), 2)
+    actual_avg_c1_in_w2 = round(avg(queue_sampler.num_components_in_queue_samples[Type.TWO][Type.ONE]), 2)
+    actual_avg_c2_in_w2 = round(avg(queue_sampler.num_components_in_queue_samples[Type.TWO][Type.TWO]), 2)
+    actual_avg_c1_in_w3 = round(avg(queue_sampler.num_components_in_queue_samples[Type.THREE][Type.ONE]), 2)
+    actual_avg_c3_in_w3 = round(avg(queue_sampler.num_components_in_queue_samples[Type.THREE][Type.THREE]), 2)
     logger.info("Expected average number of components in workstation 1 queue 1: %s", avg_c1_in_w1)
     logger.info("Actual average number of components in workstation 1 queue 1: %s", actual_avg_c1_in_w1)
     logger.info("Percent difference: %s",
@@ -221,18 +247,40 @@ def calculate_performance(monitor):
     num_c1_grabbed = total_c1_queued + currently_held_components[Type.ONE]
     num_c2_grabbed = total_c2_queued + currently_held_components[Type.TWO]
     num_c3_grabbed = total_c3_queued + currently_held_components[Type.THREE]
-    avg_c1_time_blocked = (c1_block_time_mins / num_c1_grabbed)
-    avg_c2_time_blocked = (c2_block_time_mins / num_c2_grabbed)
-    avg_c3_time_blocked = (c3_block_time_mins / num_c3_grabbed)
-    avg_c1_in_sys = (avg_c1_time_blocked + avg_queue_time_w1_c1 + avg_queue_time_w2_c1 + avg_queue_time_w3_c1) * (
-            num_c1_grabbed / data_collection_time)
-    avg_c2_in_sys = (avg_c2_time_blocked + avg_queue_time_w2_c2) * (num_c2_grabbed / data_collection_time)
-    avg_c3_in_sys = (avg_c3_time_blocked + avg_queue_time_w3_c3) * (num_c3_grabbed / data_collection_time)
-    exp_avg_components_in_sys = avg_c1_in_sys + avg_c2_in_sys + avg_c3_in_sys
-    logger.info("Expected average number of components in the system: %s", avg_c1_in_sys + avg_c2_in_sys + avg_c3_in_sys)
-    logger.info("Actual average number of components in the system: %s", avg(monitor.avg_components_in_system))
+    # avg_c1_time_blocked = (c1_block_time_mins / num_c1_grabbed)
+    # avg_c2_time_blocked = (c2_block_time_mins / num_c2_grabbed)
+    # avg_c3_time_blocked = (c3_block_time_mins / num_c3_grabbed)
+
+    total_service_times = {
+        Type.ONE: [],
+        Type.TWO: [],
+        Type.THREE: []
+    }
+    for component in monitor.all_components_made:
+        st = component.get_time_in_sys()
+        if st:
+            total_service_times[component.type].append(st)
+    avg_c1_time_in_sys = convert_to_sim_mins(avg(total_service_times[Type.ONE]))
+    avg_c2_time_in_sys = convert_to_sim_mins(avg(total_service_times[Type.TWO]))
+    avg_c3_time_in_sys = convert_to_sim_mins(avg(total_service_times[Type.THREE]))
+
+    avg_c1_throughput_in_sys = num_c1_grabbed / data_collection_time
+    avg_c2_throughput_in_sys = num_c2_grabbed / data_collection_time
+    avg_c3_throughput_in_sys = num_c3_grabbed / data_collection_time
+
+    # exp_avg_components_in_sys = avg_component_time_in_sys * avg_throughput_in_sys
+    exp_avg_components_in_sys = avg_c1_time_in_sys * avg_c1_throughput_in_sys + avg_c2_time_in_sys * avg_c2_throughput_in_sys + avg_c3_time_in_sys * avg_c3_throughput_in_sys
+
+    f3 = open("system-component-size-times.txt", "w+")
+    f4 = open("system-component-sizes.txt", "w+")
+    for index in range(len(monitor.avg_components_in_system["time"])):
+        f3.write(str(monitor.avg_components_in_system["time"][index]) + "\n")
+        f4.write(str(monitor.avg_components_in_system["data"][index]) + "\n")
+
+    logger.info("Expected average number of components in the system: %s", exp_avg_components_in_sys)
+    logger.info("Actual average number of components in the system: %s", avg(monitor.avg_components_in_system["data"]))
     logger.info("Percent difference: %s",
-                abs(exp_avg_components_in_sys - avg(monitor.avg_components_in_system)) / ((exp_avg_components_in_sys + avg(monitor.avg_components_in_system)) / 2) * 100)
+                abs(exp_avg_components_in_sys - avg(monitor.avg_components_in_system["data"])) / ((exp_avg_components_in_sys + avg(monitor.avg_components_in_system["data"])) / 2) * 100)
 
     logger.info("")
     prod1_made = monitor.products_made[Type.ONE]

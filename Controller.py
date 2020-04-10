@@ -24,11 +24,12 @@ logger.addHandler(fh)
 # If 60ms = 1min in sim, 5s irl = 5000ms irl, then simulation ran for 83.3mins
 # If we want to run it for 1000mins in sim, that's 60 000ms irl = 60s irl.
 # if simulation_run_time_secs = 180 irl, the simulation runs for 3000mins in simulation
-init_bias_min_in_sim = 400
-min_in_sim = 2000 + init_bias_min_in_sim
+init_bias_min_in_sim = 10
+min_in_sim = 100 + init_bias_min_in_sim
+
 
 # How much faster we want to speed up the timing by to make the simulation run faster
-sim_speed_factor = 10000
+sim_speed_factor = 100
 
 simulation_run_time_secs = (min_in_sim / sim_speed_factor) * 60
 init_bias_time = (init_bias_min_in_sim / sim_speed_factor) * 60

@@ -237,12 +237,13 @@ class Monitor:
         self.avg_components_in_system["time"].append(time.time() - self.factory_start_time)
 
     def sample_service_time(self, mean):
-        sampled_st = np.random.exponential(mean, 1)[0]
-        state = np.random.get_state()[1][self.i]
-        self.states.append(state)
-        self.logger.info("Sampled state: %s", state)
-        self.i += 1
-        return self.convert_st_mins_to_sim_speed(sampled_st)
+        with self.__lock:
+            sampled_st = np.random.exponential(mean, 1)[0]
+            state = np.random.get_state()[1][self.i]
+            self.states.append(state)
+            self.logger.info("Sampled state: %s", state)
+            self.i += 1
+            return self.convert_st_mins_to_sim_speed(sampled_st)
 
     def convert_st_mins_to_sim_speed(self, minutes):
         return minutes * 60 / self.model_variables["sim_speed_factor"]

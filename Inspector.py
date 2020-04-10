@@ -4,6 +4,8 @@ import time
 from threading import Thread
 import atexit
 import logging
+
+from Type import Type
 from Monitor import Monitor
 from Component import Component
 
@@ -20,6 +22,7 @@ class Inspector(Thread):
         self.component = None
         self.logger = logging.getLogger(__name__)
         self.monitor = Monitor.get_instance()
+        self.service_times = []
         self.logger.info("Initialized monitor %s in inspector.", self.monitor)
 
     def run(self):
@@ -32,7 +35,9 @@ class Inspector(Thread):
             if self.is_working:
                 self.component = self._grab_component()
                 # This block needs to match the desired service time - code after is considered negligible
-                time.sleep(self.monitor.sample_service_time(self.mean_st_components[self.component.type]))
+                st = self.monitor.sample_service_time(self.mean_st_components[self.component.type])
+                self.service_times.append(st)
+                time.sleep(st)
             chosen_workstation, chosen_buffer = self._select_buffer(self.component.type)
             if chosen_workstation:  # If I found a buffer not full for my component
                 if not self.is_working:  # If I'm currently blocked
@@ -66,4 +71,6 @@ class Inspector(Thread):
     def _grab_component(self):
         self.monitor.total_components += 1
         self.monitor.sample_components_in_sys()
-        return Component(random.choice(self.types))
+        component = Component(random.choice(self.types))
+        self.monitor.all_components_made.append(component)
+        return component

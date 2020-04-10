@@ -13,7 +13,7 @@ class Monitor:
     @staticmethod
     def get_instance():
         if not Monitor.__instance:
-            # Implementation of a double-checked lock making this method thread safe
+            # Implementation of a double-checked lock making this class thread safe
             with Monitor.__lock:
                 if not Monitor.__instance:
                     Monitor.__instance = Monitor()
@@ -31,6 +31,8 @@ class Monitor:
             # Tells the threads to run or not
             self.run_simulation = True
             self.total_components = 0
+            self.i = 0
+            self.states = []
 
             # TODO: don't need this here anymore
             self.model_variables = {
@@ -104,7 +106,7 @@ class Monitor:
             }
 
             # This dictionary should end up looking like the following:
-            # self.component_queue_times = {
+            # {
             #       workstation TYPE.ONE: {
             #            buffer TYPE.ONE: [(float) queue time, ...]
             #        },
@@ -114,6 +116,7 @@ class Monitor:
             #         },
             #      etc...
             # }
+
             self.component_queue_times = {
                 Type.ONE: {
                     Type.ONE: []
@@ -127,6 +130,7 @@ class Monitor:
                     Type.THREE: []
                 }
             }
+
             self.avg_components_in_system = {
                 "data": [],
                 "time": []
@@ -229,11 +233,15 @@ class Monitor:
 
     def sample_components_in_sys(self):
         avg = self.total_components - self.biased_products_made[Type.ONE] - 2 * self.biased_products_made[Type.TWO] - 2 * self.biased_products_made[Type.THREE]
-        self.avg_components_in_system.append(avg)
+        self.avg_components_in_system["data"].append(avg)
+        self.avg_components_in_system["time"].append(time.time() - self.factory_start_time)
 
     def sample_service_time(self, mean):
         sampled_st = np.random.exponential(mean, 1)[0]
-        self.logger.info("Sampled ST: %s", sampled_st)
+        state = np.random.get_state()[1][self.i]
+        self.states.append(state)
+        self.logger.info("Sampled state: %s", state)
+        self.i += 1
         return self.convert_st_mins_to_sim_speed(sampled_st)
 
     def convert_st_mins_to_sim_speed(self, minutes):

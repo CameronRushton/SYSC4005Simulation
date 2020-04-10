@@ -1,26 +1,26 @@
-p1 throughput mean: 2.731649304535016
-p1 throughput standard deviation: 0.1770933035351326
-p1 throughput variance: 0.030107556630707143
-p1 throughput sample variance: 0.03136203815698661
-p1 throughput 95% confidence interval: (2.658548781646993, 2.8047498274230387)
+p1 throughput mean: 2.6010324264097604
+p1 throughput standard deviation: 0.0754155098205138
+p1 throughput variance: 0.005459999156628493
+p1 throughput sample variance: 0.005687499121488014
+p1 throughput 95% confidence interval: (2.5699024339611602, 2.6321624188583614)
 p1 throughput 95% confidence interval does not exceed 20% of estimated value?: yes
-Replications needed: > 12.048040578387978
+Replications needed: > 8.739638650043341
 
-p2 throughput mean: 0.3762821550698693
-p2 throughput standard deviation: 0.11012877101831914
-p2 throughput variance: 0.01164321235776515
-p2 throughput sample variance: 0.012128346206005369
-p2 throughput 95% confidence interval: (0.3308232326501552, 0.4217410774895834)
+p2 throughput mean: 0.3898720619532785
+p2 throughput standard deviation: 0.04714413045703012
+p2 throughput variance: 0.0021336662750874964
+p2 throughput sample variance: 0.002222569036549475
+p2 throughput 95% confidence interval: (0.3704119213453848, 0.4093322025611721)
 p2 throughput 95% confidence interval does not exceed 20% of estimated value?: yes
-Replications needed: > 4.659225478499023
+Replications needed: > 3.415288484323385
 
-p3 throughput mean: 0.45578489650207665
-p3 throughput standard deviation: 0.13023948494434662
-p3 throughput variance: 0.01628383050102594
-p3 throughput sample variance: 0.01696232343856869
-p3 throughput 95% confidence interval: (0.4020246793733144, 0.5095451136308389)
+p3 throughput mean: 0.3721581767946832
+p3 throughput standard deviation: 0.05301105488931537
+p3 throughput variance: 0.002697765062858887
+p3 throughput sample variance: 0.0028101719404780073
+p3 throughput 95% confidence interval: (0.3502762888073948, 0.3940400647819716)
 p3 throughput 95% confidence interval does not exceed 20% of estimated value?: yes
-Replications needed: > 6.516246172160546
+Replications needed: > 4.318222610616124
 
 inspector 1 proportion blocked mean: 0.0
 inspector 1 proportion blocked standard deviation: 0.0
@@ -30,11 +30,11 @@ inspector 1 proportion blocked 95% confidence interval sanity: (0.0, 0.0)
 inspector 1 proportion blocked 95% confidence interval does not exceed 20% of estimated value?: yes
 Replications needed: > 0.0
 
-inspector 2 proportion blocked mean: 65.88636124720816
-inspector 2 proportion blocked standard deviation: 11.045651833367746
-inspector 2 proportion blocked variance: 117.12616744702103
-inspector 2 proportion blocked sample variance: 122.00642442398025
-inspector 2 proportion blocked 95% confidence interval: (61.326940260981836, 70.44578223343447)
+inspector 2 proportion blocked mean: 72.2113065310838
+inspector 2 proportion blocked standard deviation: 4.21951575967505
+inspector 2 proportion blocked variance: 17.092140716300275
+inspector 2 proportion blocked sample variance: 17.80431324614612
+inspector 2 proportion blocked 95% confidence interval: (70.46957602965179, 73.95303703251582)
 inspector 2 proportion blocked 95% confidence interval does not exceed 20% of estimated value?: yes
-Replications needed: > 18.7479952026865
+Replications needed: > 17.099262441598725
 

@@ -8,7 +8,7 @@ from Monitor import Monitor
 
 
 class Workstation(Thread):
-    def __init__(self, my_type, my_buffers, mean_st, *args, **kwargs):
+    def __init__(self, my_type, my_buffers, mean_st, st_file_name, *args, **kwargs):
         super(Workstation, self).__init__(*args, **kwargs)
         self.buffers = my_buffers
         self.type = my_type
@@ -16,6 +16,9 @@ class Workstation(Thread):
         self.isMakingProduct = False
         self.logger = logging.getLogger(__name__)
         self.monitor = Monitor.get_instance()
+        if self.monitor.use_common_service_times:
+            self.common_service_times = open(st_file_name).read().splitlines()
+            self.st_counter = 0
         self.logger.info("Initialized monitor %s in workstation.", self.monitor)
         self.service_times = []
 
@@ -52,7 +55,15 @@ class Workstation(Thread):
         # This means that the workstation can be assembling a product while its buffer(s) is/are full, meaning we can
         # ...potentially make 3 products in a row without filling the queue in that time. Finish the one it currently
         # ...has and then pull the next two from the queue.
-        st = self.monitor.sample_service_time(self.mean_st)
+        if self.monitor.use_common_service_times:
+            if self.st_counter >= len(self.common_service_times):
+                self.st_counter = 0
+                self.logger.warning("Workstation of type went back to the beginning of service time list "
+                                    "(ran out of samples).", self.type)
+            st = float(self.common_service_times[self.st_counter])
+            self.st_counter += 1
+        else:
+            st = self.monitor.sample_service_time(self.mean_st)
         self.service_times.append(st)
         time.sleep(st)
         for component in components:

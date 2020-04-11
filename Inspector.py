@@ -12,7 +12,7 @@ from Component import Component
 
 class Inspector(Thread):
     # Inspector doesn't really need to know about workstations, but it makes some sense if they do
-    def __init__(self, known_workstations, seed, my_types, mean_st_components, *args, **kwargs):
+    def __init__(self, known_workstations, seed, my_types, mean_st_components, st_file_names, *args, **kwargs):
         super(Inspector, self).__init__(*args, **kwargs)
         self.types = my_types
         random.seed(seed)
@@ -23,6 +23,12 @@ class Inspector(Thread):
         self.logger = logging.getLogger(__name__)
         self.monitor = Monitor.get_instance()
         self.service_times = []
+        if self.monitor.use_common_service_times:
+            self.common_service_times = {}
+            self.st_counters = {}
+            for typ in my_types:
+                self.common_service_times[typ] = open(st_file_names[typ]).read().splitlines()
+                self.st_counters[typ] = 0
         self.logger.info("Initialized monitor %s in inspector.", self.monitor)
 
     def run(self):
@@ -35,7 +41,15 @@ class Inspector(Thread):
             if self.is_working:
                 self.component = self._grab_component()
                 # This block needs to match the desired service time - code after is considered negligible
-                st = self.monitor.sample_service_time(self.mean_st_components[self.component.type])
+                if self.monitor.use_common_service_times:
+                    if self.st_counters[self.component.type] >= len(self.common_service_times[self.component.type]):
+                        self.st_counters[self.component.type] = 0
+                        self.logger.warning("Inspector of types %s went back to the beginning of service time list "
+                                            "for %s (ran out of samples).", self.component.type, self.types)
+                    st = float(self.common_service_times[self.component.type][self.st_counters[self.component.type]])
+                    self.st_counters[self.component.type] += 1
+                else:
+                    st = self.monitor.sample_service_time(self.mean_st_components[self.component.type])
                 self.service_times.append(st)
                 time.sleep(st)
             chosen_workstation, chosen_buffer = self._select_buffer(self.component.type)

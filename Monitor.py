@@ -31,8 +31,11 @@ class Monitor:
             # Tells the threads to run or not
             self.run_simulation = True
             self.total_components = 0
+            # Incrementation for state display
             self.i = 0
             self.states = []
+
+            self.use_common_service_times = False
 
             # TODO: don't need this here anymore
             self.model_variables = {
@@ -146,14 +149,6 @@ class Monitor:
     def inspector_end_blocked(self, my_component_type):
         if time.time() > self.init_bias:
             if len(self.inspector_blocked_start_times[my_component_type]) == 0:
-                # if time.time() < (self.init_bias + 30):  # After this time should be an error
-                #     self.component_block_times[my_component_type].append(
-                #         time.time() - self.init_bias)  # chance to start block before data collection begins
-                #     self.logger.error(
-                #         "Block time started before data collection, added block time of %s to component %s",
-                #         time.time() - self.init_bias,
-                #         my_component_type)
-                # else:
                     self.logger.error(
                         "Tried to log inspector component %s service time, but no service start time was found!",
                         my_component_type)
@@ -169,14 +164,6 @@ class Monitor:
     def inspector_end_service_time(self, my_component_type):
         if time.time() > self.init_bias:
             if len(self.inspector_component_start_service_times) == 0:
-                # if time.time() < (self.init_bias + 30):
-                #     self.inspector_component_service_times[my_component_type].append(
-                #         time.time() - self.init_bias)
-                #     self.logger.error(
-                #         "Service time started before data collection, added inspector service time of %s to component %s",
-                #         time.time() - self.init_bias,
-                #         my_component_type)
-                # else:
                     self.logger.error(
                         "Tried to log inspector component %s service time, but no service start time was found!",
                         my_component_type)
@@ -191,12 +178,6 @@ class Monitor:
     def workstation_end_idle(self, my_workstation_type):
         if time.time() > self.init_bias:
             if len(self.workstation_start_idle_times) == 0:
-                # if time.time() < (self.init_bias + 30):
-                #     self.workstation_idle_times[my_workstation_type].append(time.time() - self.init_bias)
-                #     self.logger.error("Idle started before data collection, added time of %s to workstation %s",
-                #                       time.time() - self.init_bias,
-                #                       my_workstation_type)
-                # else:
                     self.logger.error("Tried to log workstation %s idle time, but no idle start time was found!",
                                       my_workstation_type)
             else:
@@ -211,14 +192,6 @@ class Monitor:
     def workstation_end_service_time(self, my_workstation_type):
         if time.time() > self.init_bias:
             if len(self.workstation_start_service_times) == 0:
-                # if time.time() < (self.init_bias + 30):
-                #     self.workstation_service_times[my_workstation_type].append(
-                #         time.time() - self.init_bias)
-                #     self.logger.error(
-                #         "Service time started before data collection, added service time of %s to workstation %s",
-                #         time.time() - self.init_bias,
-                #         my_workstation_type)
-                # else:
                     self.logger.error("Tried to log workstation %s service time, but no service start time was found!",
                                       my_workstation_type)
             else:
@@ -241,7 +214,7 @@ class Monitor:
             sampled_st = np.random.exponential(mean, 1)[0]
             state = np.random.get_state()[1][self.i]
             self.states.append(state)
-            self.logger.info("Sampled state: %s", state)
+            self.logger.debug("Sampled state: %s", state)
             self.i += 1
             return self.convert_st_mins_to_sim_speed(sampled_st)
 

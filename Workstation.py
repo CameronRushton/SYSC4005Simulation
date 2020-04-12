@@ -58,7 +58,7 @@ class Workstation(Thread):
         if self.monitor.use_common_service_times:
             if self.st_counter >= len(self.common_service_times):
                 self.st_counter = 0
-                self.logger.warning("Workstation of type went back to the beginning of service time list "
+                self.logger.warning("Workstation of type %s went back to the beginning of service time list "
                                     "(ran out of samples).", self.type)
             st = float(self.common_service_times[self.st_counter])
             self.st_counter += 1

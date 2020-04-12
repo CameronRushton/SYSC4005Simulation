@@ -1,0 +1,105 @@
+For system one 
+Mean product ones produced: 89.0
+Variance: 0.888888889
+CI [88.32555504110975, 89.67444495889025] 
+Mean product twos produced: 5.0
+Variance: 0.0
+CI [5.0, 5.0] 
+Mean product threes produced: 3.6
+Variance: 0.266666667
+CI [3.2305912822201632, 3.969408717779837] 
+Mean total products produced: 97.6
+Variance: 1.822222222
+CI [96.63434177615805, 98.56565822384194] 
+Mean throughput for product 1: 0.53194
+Variance: 3.2073e-05
+CI [0.5278896412926685, 0.5359922319350213] 
+Mean throughput for product 2: 0.02988
+Variance: 1e-09
+CI [0.029864609757713715, 0.029904029168895906] 
+Mean throughput for product 3: 0.02152
+Variance: 9.522e-06
+CI [0.019309180716859015, 0.023724038028990587] 
+Mean total throughput for products: 0.58334
+Variance: 6.5351e-05
+CI [0.5775589338366789, 0.5891247970634701] 
+Mean block percentage for inspector 1: 0.0
+Variance: 0.0
+CI [0.0, 0.0] 
+Mean block percentage for inspector 2: 79.71253
+Variance: 0.473604173
+CI [79.22022780839616, 80.2048293922213] 
+Mean total block percentage for inspectors: 79.71253
+Variance: 0.473604173
+CI [79.22022780839616, 80.2048293922213] 
+
+For system two 
+Mean product ones produced: 54.0
+Variance: 3.333333333
+CI [52.69394295314225, 55.30605704685775] 
+Mean product twos produced: 23.6
+Variance: 6.488888889
+CI [21.777750066873626, 25.422249933126377] 
+Mean product threes produced: 24.3
+Variance: 1.788888889
+CI [23.34321478106259, 25.256785218937413] 
+Mean total products produced: 101.9
+Variance: 0.544444444
+CI [101.37216332869377, 102.42783667130624] 
+Mean throughput for product 1: 0.32298
+Variance: 0.000116164
+CI [0.3152729625858482, 0.33069314242333886] 
+Mean throughput for product 2: 0.14116
+Variance: 0.000233299
+CI [0.13023449247842897, 0.15208739678038138] 
+Mean throughput for product 3: 0.14535
+Variance: 6.4223e-05
+CI [0.13961224856698679, 0.1510778497275121] 
+Mean total throughput for products: 0.60949
+Variance: 1.9208e-05
+CI [0.6063538330690225, 0.6126242594934738] 
+Mean block percentage for inspector 1: 0.0
+Variance: 0.0
+CI [0.0, 0.0] 
+Mean block percentage for inspector 2: 2.68392
+Variance: 3.558358057
+CI [1.3345019212884928, 4.033344747371301] 
+Mean total block percentage for inspectors: 2.68392
+Variance: 3.558358057
+CI [1.3345019212884928, 4.033344747371301] 
+
+Differences 
+A negative value means system two has a higher mean.
+Estimated mean product 1 produced: 35.0
+Variance: 5.999999999777778
+CI [33.24774059647251, 36.75225940352749]
+Estimated mean product 2 produced: -18.6
+Variance: 6.488888889
+CI [-20.42224993314198, -16.777750066858022]
+Estimated mean product 3 produced: -20.7
+Variance: 2.011111111555556
+CI [-21.714473733542505, -19.685526266457494]
+Estimated mean of total products produced: -4.300000000000011
+Variance: 2.1444444448888893
+CI [-5.347563056065631, -3.252436943934392]
+Estimated mean throughput of product 1: 0.20895999999999998
+Variance: 0.0002076862571412863
+CI [0.198650759909558, 0.21926924009044196]
+Estimated mean throughput of product 2: -0.11128
+Variance: 0.00023344956828840114
+CI [-0.122209978601464, -0.10035002139853601]
+Estimated mean throughput of product 3: -0.12383000000000001
+Variance: 7.204002686792896e-05
+CI [-0.12990169164053642, -0.11775830835946362]
+Estimated mean of total product throughput: -0.026150000000000007
+Variance: 8.534999309050692e-05
+CI [-0.03275882906695076, -0.019541170933049253]
+Estimated mean block percentage of inspector 1: 0.0
+Variance: 0.0
+CI [0.0, 0.0]
+Estimated mean block percentage of inspector 2: 77.02861
+Variance: 4.7789996663027745
+CI [75.46477375615416, 78.59244624384584]
+Estimated mean total block percentage: 77.02861
+Variance: 4.7789996663027745
+CI [75.46477375615416, 78.59244624384584]

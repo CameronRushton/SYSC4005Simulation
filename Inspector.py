@@ -12,12 +12,14 @@ from Component import Component
 
 class Inspector(Thread):
     # Inspector doesn't really need to know about workstations, but it makes some sense if they do
-    def __init__(self, known_workstations, seed, my_types, mean_st_components, st_file_names, *args, **kwargs):
+    def __init__(self, known_workstations, seed, my_types, mean_st_components, st_file_names, round_robin, *args, **kwargs):
         super(Inspector, self).__init__(*args, **kwargs)
         self.types = my_types
         random.seed(seed)
         self.workstations = known_workstations
+        self.round_robin_index = 0
         self.mean_st_components = mean_st_components
+        self.round_robin = round_robin
         self.is_working = True
         self.component = None
         self.logger = logging.getLogger(__name__)
@@ -52,7 +54,11 @@ class Inspector(Thread):
                     st = self.monitor.sample_service_time(self.mean_st_components[self.component.type])
                 self.service_times.append(st)
                 time.sleep(st)
-            chosen_workstation, chosen_buffer = self._select_buffer(self.component.type)
+
+            if self.round_robin:
+                chosen_workstation, chosen_buffer = self._select_buffer_round_robin(self.component.type)
+            else:
+                chosen_workstation, chosen_buffer = self._select_buffer(self.component.type)
             if chosen_workstation:  # If I found a buffer not full for my component
                 if not self.is_working:  # If I'm currently blocked
                     self._toggle_is_working()  # Set self to unblocked/working
@@ -77,6 +83,32 @@ class Inspector(Thread):
                         best_buffer = buffer
                         best_workstation = workstation
         return best_workstation, best_buffer
+
+    def _select_buffer_round_robin(self, component_type):
+        if component_type == Type.TWO or component_type == Type.THREE:
+            for workstation in self.workstations:
+                for buffer in workstation.buffers:
+                    if buffer.type == component_type and not buffer.full():
+                        return workstation, buffer
+            return None, None
+        else:
+            check = 0
+            while check < 3:  # check if every workstation is full
+                round_robin_workstation = self.workstations[self.round_robin_index]
+                for buffer in round_robin_workstation.buffers:
+                    if buffer.type == component_type and not buffer.full():
+                        self._next_index()
+                        return round_robin_workstation, buffer
+                # no empty buffer of correct type at workstation
+                self._next_index()
+                check += 1
+            return None, None
+
+    def _next_index(self):
+        if self.round_robin_index < (len(self.workstations) - 1):
+            self.round_robin_index += 1
+        else:
+            self.round_robin_index = 0
 
     def _toggle_is_working(self):
         self.is_working = not self.is_working

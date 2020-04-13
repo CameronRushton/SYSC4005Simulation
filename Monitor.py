@@ -143,33 +143,37 @@ class Monitor:
             Monitor.__instance = self
 
     def inspector_start_blocked(self, my_component_type):
-        if time.time() > self.init_bias:
-            self.inspector_blocked_start_times[my_component_type].append(time.time())
+        with self.__lock:
+            if time.time() > self.init_bias:
+                self.inspector_blocked_start_times[my_component_type].append(time.time())
 
     def inspector_end_blocked(self, my_component_type):
-        if time.time() > self.init_bias:
-            if len(self.inspector_blocked_start_times[my_component_type]) == 0:
-                    self.logger.error(
-                        "Tried to log inspector component %s service time, but no service start time was found!",
-                        my_component_type)
-            else:
-                self.component_block_times[my_component_type].append(
-                    time.time() - self.inspector_blocked_start_times[my_component_type].pop())
+        with self.__lock:
+            if time.time() > self.init_bias:
+                if len(self.inspector_blocked_start_times[my_component_type]) == 0:
+                        self.logger.error(
+                            "Tried to log inspector component %s service time, but no service start time was found!",
+                            my_component_type)
+                else:
+                    self.component_block_times[my_component_type].append(
+                        time.time() - self.inspector_blocked_start_times[my_component_type].pop())
 
     # TODO: since we sample the service time, we know what it's going to be so there's no need to calculate it
     def inspector_start_service_time(self, my_component_type):
-        if time.time() > self.init_bias:
-            self.inspector_component_start_service_times[my_component_type].append(time.time())
+        with self.__lock:
+            if time.time() > self.init_bias:
+                self.inspector_component_start_service_times[my_component_type].append(time.time())
 
     def inspector_end_service_time(self, my_component_type):
-        if time.time() > self.init_bias:
-            if len(self.inspector_component_start_service_times) == 0:
-                    self.logger.error(
-                        "Tried to log inspector component %s service time, but no service start time was found!",
-                        my_component_type)
-            else:
-                self.inspector_component_service_times[my_component_type].append(
-                    time.time() - self.inspector_component_start_service_times[my_component_type].pop())
+        with self.__lock:
+            if time.time() > self.init_bias:
+                if len(self.inspector_component_start_service_times) == 0:
+                        self.logger.error(
+                            "Tried to log inspector component %s service time, but no service start time was found!",
+                            my_component_type)
+                else:
+                    self.inspector_component_service_times[my_component_type].append(
+                        time.time() - self.inspector_component_start_service_times[my_component_type].pop())
 
     def workstation_start_idle(self, my_workstation_type):
         if time.time() > self.init_bias:
